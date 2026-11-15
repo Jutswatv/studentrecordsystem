@@ -1,4 +1,7 @@
 /* Gradebook visual theme. System fonts keep the interface available offline. */
+.grades-table input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
+.grades-table input[type="number"]::-webkit-inner-spin-button,
+.grades-table input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .brand .school-logo { width: 56px; height: 56px; flex: 0 0 56px; object-fit: contain; background: #fff; border-radius: 50%; padding: 3px; box-shadow: 0 3px 10px #0002; }
 .brand .school-monogram { flex: 0 0 48px; width: 48px; height: 48px; display: grid; place-items: center; border: 1px solid #70c6cb70; background: #ffffff10; border-radius: 12px; font-size: 13px; letter-spacing: .6px; color: #a0eeea; }
 .sidebar .brand .school-name { font-size: 12px; line-height: 1.5; letter-spacing: .1px; font-weight: 650; }
