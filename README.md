@@ -2,6 +2,12 @@
 
 A PHP 8.2+ application using HTML, CSS, and PHP only. No JavaScript, framework, or package installation is required. Student data is stored locally in SQLite.
 
+## Online demonstration
+
+Explore the [GitHub Pages demo](https://jutswatv.github.io/studentrecordsystem/). It contains fictional students and grades only. Registration is a disabled visual preview; saving, authentication, live search, and export require the PHP application.
+
+The static demo is published from `main` / `docs`. Rebuild it after changing the design with `php build-demo.php`, then commit the updated `docs/` files. The generator uses hard-coded fictional records and never reads the database.
+
 ## Run locally
 
 Enable the `pdo_sqlite` extension in PHP, then run from this folder:
