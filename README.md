@@ -1,59 +1,75 @@
-# Libertad National Vocational School - Grade 12 Student Record Management System
+# Libertad National Vocational School - Grade 12 Student Records
 
-A PHP 8.2+ application using HTML, CSS, and PHP only. No JavaScript, framework, or package installation is required. Student data is stored locally in SQLite.
+Two working editions are included: an online browser-storage application for GitHub Pages, and the original PHP/SQLite application for a local or PHP-enabled server.
 
-## Online demonstration
+## Use online - no PHP hosting required
 
-Explore the [GitHub Pages demo](https://jutswatv.github.io/studentrecordsystem/). It contains fictional students and grades only. Registration is a disabled visual preview; saving, authentication, live search, and export require the PHP application.
+Open **https://jutswatv.github.io/studentrecordsystem/** in a normal browser window.
 
-The static demo is published from `main` / `docs`. Rebuild it after changing the design with `php build-demo.php`, then commit the updated `docs/` files. The generator uses hard-coded fictional records and never reads the database.
+1. Create your local administrator account (password: at least 12 characters).
+2. Register students, manage quarterly grades, and view reports.
+3. Go to **Account & backups** and download a full JSON backup regularly.
 
-## Run locally
+The online version starts empty. It supports registration, editing, confirmed deletion, searching and filtering, quarterly grades, averages, reports, CSV export, printing, local password changes, and logout confirmation. It uses HTML, CSS, and JavaScript with localStorage; no external database, tracking, or API is used. Student information is not uploaded to GitHub.
 
-Enable the `pdo_sqlite` extension in PHP, then run from this folder:
+### What browser storage means
+
+- Records are saved on this browser profile for this website. They persist through refresh and signing out.
+- Different browsers, devices, or profiles have separate workspaces. There is no automatic sharing or synchronization.
+- Clearing site data, uninstalling the browser, private browsing, storage eviction, or losing the device may erase records. Data on localhost is separate from data on the GitHub Pages address.
+- Local sign-in is a convenience lock, not server authentication. Passwords are hashed with PBKDF2, but student records are **not encrypted**. Someone with access to this browser, developer tools, or other scripts on the same origin may access them. Use a trusted device.
+- There is no password-recovery server. Keep your local password and backups safe.
+
+### Backups and moving to another browser
+
+**Download full backup** exports the local account, students, and grades as a JSON file. Store it privately. CSV export contains student information only, not grades or account settings.
+
+To move records, create a local account in the destination browser, then open **Account & backups > Restore a backup**. Choose your JSON backup and confirm replacement. Sign in using the username and password from that backup. Restoring replaces the destination workspace, so export its existing backup first if needed.
+
+### Build the GitHub Pages version
+
+Editable sources are in browser/ with shared styling in style.css and theme.css.
 
 ```powershell
-php -S localhost:8000 -t public
+php build-browser.php
 ```
 
-Open http://localhost:8000 and create the first administrator account. There are no default credentials. Complete setup before making the server accessible to others. PHP must be able to write to `storage/`.
+Commit generated docs/ files and push to main. GitHub Pages publishes main / docs. Old demo URLs redirect to the working browser application. Do not upload contents of storage/.
 
-On this Windows installation, SQLite is installed but disabled by default. Double-click `OPEN-SYSTEM.bat`, or run `php -d extension=pdo_sqlite -S localhost:8000 -t public` in PowerShell. Keep the server window open and enter the URL in your browser.
+## Run the PHP/SQLite edition locally
 
-## Features
+Requires PHP 8.2+ and pdo_sqlite. From the project folder:
 
-- First-run administrator setup, hashed passwords, login throttling, logout, and password changes.
-- Dashboard with enrollment totals, sections, strand distribution, and academic summaries.
-- Registration with unique 12-digit LRN, personal, enrollment, and guardian details.
-- Search by name, LRN, or section; filter by strand and school year; edit and confirmed deletion.
-- Seven shared Grade 12 subjects with four quarterly grades, subject averages, and general average.
-- Enrollment summaries by year, strand, and sex; completed, passing, failed, and incomplete subject statistics.
-- Filtered CSV export and printable student profile including grades. Use Ctrl+P on the profile.
-- School branding, responsive navy and teal interface, and PHP/HTML notification popups.
-- Sign-out confirmation with Yes/No choices and a logout success notification.
+```powershell
+php -d extension=pdo_sqlite -S localhost:8000 -t public
+```
+
+On this Windows installation you can also double-click OPEN-SYSTEM.bat. Keep the server window open, visit http://localhost:8000, and create the first administrator account. There are no default credentials.
+
+The PHP edition uses HTML, CSS, and PHP without JavaScript. Its data is stored in storage/records.sqlite, independently of the online browser edition. PHP must have write access to storage/. Set the web server document root to public/ and enable HTTPS when deploying to PHP hosting. Complete administrator setup before exposing a new installation publicly.
+
+The Git repository excludes the PHP database and administrator accounts. Each PHP installation creates its own database. Back up the database while the application is stopped.
 
 ## Grading rules
 
-Grades accept 0–100 with up to two decimal places in the form. Blank means unencoded. Subject averages require all four quarters. General averages require all seven completed subjects. Reports average completed subject averages across all years. Passing is an unrounded average of at least 75. The shared subject list is defined in `app.php`; adapt it to your school's curriculum before encoding grades. This is a simple quarterly average system, not an official DepEd transmutation implementation.
+Shared subjects are defined separately in app.php (PHP edition) and browser/app.js (browser edition). Adapt them to your school's curriculum before using the application.
 
-## Hosting and data
+Grades accept 0-100 with two decimal places. Blank means unencoded. Subject averages require all four quarters; general averages require all seven subjects. Passing is an unrounded average of at least 75. Reports average completed subject averages across all years. This is a simple arithmetic average, not an official DepEd transmutation implementation.
 
-Use HTTPS and a PHP-enabled web server with SQLite for deployment. Set the web server document root to the `public/` folder, so the database and private application files remain outside the public directory. PHP must have write access to `storage/`. The built-in PHP server is for local development.
-
-GitHub stores the source code. GitHub Pages cannot run this PHP application; running it online requires PHP hosting.
-
-The database is `storage/records.sqlite`. Protect it as student personal information. Back up this file while the application is stopped. Deleting a student also deletes their grades. The app starts empty and does not fabricate student data. There is one administrator setup flow and no password recovery feature; retain your administrator credentials securely.
-
-## Verification
+## Checks
 
 ```powershell
 php -l app.php
 php -l index.php
-php -l public/index.php
+php -l build-browser.php
+node --check browser/app.js
 ```
 
-Manually verify setup, login, registration, duplicate LRN rejection, editing, filtering, grade persistence, CSV download, print preview, password change, and deletion before real use.
+The isolated browser test uses Playwright and installed Chrome. It starts a temporary local server and disposable browser profiles with fictional test data, without touching the live website's browser storage:
 
-PHP syntax checks passed, and local HTTP checks confirmed that the setup page, styles, and school logo load successfully using the `public/` document root. Complete the manual checks above before using real student information.
+```powershell
+npm.cmd install --prefix "$env:TEMP/lnvs-browser-qa" playwright --no-audit --no-fund
+node tests/browser.cjs
+```
 
-The Git repository excludes all contents of `storage/` except `.gitkeep`, so student records and local administrator accounts are not uploaded. Each installation creates its own database and administrator account.
+Set PLAYWRIGHT_MODULE or CHROME_PATH if your installations differ. Screenshots are saved under the ignored .artifacts/ directory.

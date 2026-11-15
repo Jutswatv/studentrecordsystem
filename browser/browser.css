@@ -1,0 +1,25 @@
+.browser-banner { display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; padding:13px 17px; margin-bottom:22px; border:1px solid #e6d6a8; border-radius:10px; background:#fff9e9; color:#76551d; font-size:12px; line-height:1.6; }
+.browser-banner strong { background:#f2c764; padding:3px 8px; border-radius:4px; font-size:10px; white-space:nowrap; }
+.browser-banner a { margin-left:auto; color:#71551e; font-weight:650; }
+.local-note { font-size:12px; line-height:1.7; color:#667a90; padding:13px 15px; background:#f2f7fc; border-radius:8px; }
+.auth .local-note { margin-top:22px; }
+.app-dialog::backdrop { background:#10243c99; backdrop-filter:blur(4px); }
+body:has(.app-dialog[open])::after { display:none; }
+.dialog-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; }
+.dialog-actions .button { min-width:0; }
+.feedback-warning .feedback-icon { background:#fff8e7; border-color:#ebc86f; color:#ac7a16; }
+.backup-actions { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin:18px 0; }
+.settings-stack { max-width:800px; }
+.setting-file { max-width:100%; }
+.inline-help { font-size:11px; line-height:1.6; color:#6c7d91; }
+.form-grid .full-width { grid-column:1/-1; }
+.browser-tabs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+.print-heading { display:none; }
+.profile .card-heading { flex-wrap:wrap; }
+.actions .button { white-space:normal; }
+.button:disabled { opacity:.6; cursor:wait; }
+input[type=file] { padding:9px; }
+.auth label { text-align:left; }
+.filters .button { flex-shrink:0; }
+@media(max-width:700px){.browser-banner a{margin-left:0}.dialog-actions{flex-direction:column}.backup-actions .button{width:100%}.form-footer{justify-content:flex-start}}
+@media print{.browser-banner,.no-print,.app-dialog,.backup-actions{display:none!important}.print-heading{display:flex;gap:15px;align-items:center;margin-bottom:20px}.print-heading img{width:65px;height:65px;object-fit:contain}.print-heading h1{font-size:19px}.print-heading p{margin:4px 0}.content{padding:0}.local-note{display:none}.main{margin:0}.table-wrap{overflow:visible}body:has(.app-dialog[open]){overflow:visible}}

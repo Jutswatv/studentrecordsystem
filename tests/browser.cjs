@@ -1,0 +1,142 @@
+/* Isolated end-to-end checks. Never touches the real GitHub Pages browser data. */
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const http = require('node:http');
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.tmpdir(), 'lnvs-browser-qa/node_modules/playwright'));
+const root = path.resolve(__dirname, '../docs');
+const errors = [];
+const server = http.createServer((req, res) => {
+  let file = path.resolve(root, '.' + new URL(req.url, 'http://localhost').pathname);
+  if (file === root) file = path.join(root, 'index.html');
+  if (!file.startsWith(root + path.sep)) { res.writeHead(403).end(); return; }
+  if (!fs.existsSync(file)) { res.writeHead(404).end(); return; }
+  const types = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.png':'image/png'};
+  res.setHeader('Content-Type', types[path.extname(file)] || 'application/octet-stream');
+  res.end(fs.readFileSync(file));
+});
+async function run() {
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${server.address().port}/`;
+  const browser = await chromium.launch({headless:true, executablePath: process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe'});
+  try {
+    const context = await browser.newContext({acceptDownloads:true, viewport:{width:1440,height:1000}});
+    const page = await context.newPage();
+    page.on('pageerror', error => errors.push(error.message));
+    page.on('console', message => { if(message.type()==='error' && !message.text().includes('favicon')) errors.push(message.text()); });
+    const modal = page.locator('#notification');
+    async function alertText(text) { await modal.waitFor({state:'visible'}); await page.waitForFunction(text => document.querySelector('#notification').textContent.includes(text), text); }
+    async function ok() { await modal.getByRole('button', {name:'OK, got it'}).click(); await modal.waitFor({state:'hidden'}); }
+    async function open(hash) { await page.goto(url + '#' + hash); await page.waitForTimeout(80); }
+    async function register(lrn='123456789012', first='Alex') {
+      await open('register');
+      const form = page.locator('form[data-form="student"]');
+      for(const [key,value] of Object.entries({lrn,first_name:first,last_name:'Rivera',birth_date:'2008-02-15',section:'Einstein',school_year:'2026-2027',email:'alex@example.com',guardian:'Sample Guardian'})) await form.locator(`[name="${key}"]`).fill(value);
+      await form.locator('[name="sex"]').selectOption('Female');
+      await form.locator('[name="strand"]').selectOption('STEM');
+      await form.getByRole('button',{name:'Register student'}).click();
+    }
+    await page.goto(url);
+    await page.locator('[name="username"]').fill('local_admin');
+    await page.locator('[name="password"]').fill('Test-password-123');
+    await page.locator('[name="confirm"]').fill('Test-password-123');
+    await page.getByRole('button',{name:'Create local account'}).click();
+    await alertText('Account created'); await ok();
+    assert.equal(await page.locator('.stat strong').first().textContent(), '0');
+    await register(); await alertText('Student created'); await ok();
+    const id = new URLSearchParams(page.url().split('?')[1]).get('id');
+    assert(id);
+    await register(); await alertText('already registered'); await ok();
+    await open('edit?id='+id);
+    await page.locator('[name="first_name"]').fill('Alex Updated');
+    await page.getByRole('button',{name:'Save changes'}).click();
+    await alertText('Record updated'); await ok();
+    assert((await page.locator('.profile h2').textContent()).includes('Alex Updated'));
+    await open('encode?id='+id);
+    for(let q=0;q<3;q++) await page.locator(`[name="g0_${q}"]`).fill(String([90,80,70][q]));
+    await page.getByRole('button',{name:'Save quarterly grades'}).click();
+    await alertText('Grades saved'); await ok();
+    assert((await page.locator('tbody tr').first().textContent()).includes('Incomplete'));
+    for(let i=0;i<7;i++) for(let q=0;q<4;q++) await page.locator(`[name="g${i}_${q}"]`).fill(String([90,80,70,100][q]));
+    await page.getByRole('button',{name:'Save quarterly grades'}).click();
+    await alertText('Grades saved'); await ok();
+    assert((await page.locator('tfoot').textContent()).includes('85.00'));
+    await page.reload(); await page.locator('tfoot').waitFor();
+    assert.equal(await page.locator('[name="g0_3"]').inputValue(), '100');
+    await open('students');
+    await page.locator('[name="search"]').fill('missing-name');
+    await page.getByRole('button',{name:'Apply filters'}).click();
+    assert((await page.locator('.empty').textContent()).includes('No students found'));
+    await page.getByRole('button',{name:'Reset',exact:true}).click();
+    assert((await page.locator('tbody').textContent()).includes('Alex Updated'));
+    const csvWait = page.waitForEvent('download');
+    await page.getByRole('button',{name:'Export filtered CSV'}).click();
+    const csvDownload = await csvWait;
+    const csv = fs.readFileSync(await csvDownload.path(),'utf8');
+    assert(csv.includes('123456789012') && csv.includes('Alex Updated'));
+    await alertText('CSV download started'); await ok();
+    await open('reports');
+    assert.equal(await page.locator('.stat strong').last().textContent(),'85.00');
+    await open('settings');
+    const backupWait = page.waitForEvent('download');
+    await page.getByRole('button',{name:'Download full backup'}).click();
+    const backupDownload = await backupWait;
+    const backup = fs.readFileSync(await backupDownload.path());
+    assert.equal(JSON.parse(backup).students.length,1);
+    await alertText('Backup download started'); await ok();
+    const passwordForm=page.locator('form[data-form="password"]');
+    await passwordForm.locator('[name="current"]').fill('Test-password-123');
+    await passwordForm.locator('[name="password"]').fill('Changed-password-123');
+    await passwordForm.locator('[name="confirm"]').fill('Changed-password-123');
+    await passwordForm.getByRole('button').click();
+    await alertText('Password updated'); await ok();
+    await page.locator('.logout').click();
+    await alertText('Sign out?');
+    await modal.getByRole('button',{name:'No, stay signed in'}).click();
+    assert.equal(await page.locator('.sidebar').count(),1);
+    await page.locator('.logout').click();
+    await modal.getByRole('button',{name:'Yes, sign out'}).click();
+    await alertText('Logout successful'); await ok();
+    await page.locator('[name="password"]').fill('Changed-password-123');
+    await page.locator('form[data-form="login"] button').click();
+    await alertText('Login successful'); await ok();
+    await open('students');
+    await page.getByRole('link',{name:'Delete',exact:true}).click();
+    await alertText('Delete student?'); await modal.getByRole('button',{name:'No, keep student'}).click();
+    assert.equal(await page.locator('tbody tr').count(),1);
+    await page.getByRole('link',{name:'Delete',exact:true}).click();
+    await modal.getByRole('button',{name:'Yes, delete student'}).click();
+    await alertText('Student deleted'); await ok();
+    assert((await page.locator('.empty').textContent()).includes('No students found'));
+    await open('settings');
+    await page.locator('[name="backup"]').setInputFiles({name:'backup.json',mimeType:'application/json',buffer:backup});
+    await page.getByRole('button',{name:'Restore backup',exact:true}).click();
+    await alertText('Replace current workspace?');
+    await modal.getByRole('button',{name:'Yes, restore backup'}).click();
+    await alertText('Backup restored'); await ok();
+    await page.locator('[name="password"]').fill('Test-password-123');
+    await page.locator('form[data-form="login"] button').click();
+    await alertText('Login successful'); await ok();
+    await open('profile?id='+id);
+    assert((await page.locator('tfoot').textContent()).includes('85.00'));
+    await page.emulateMedia({media:'print'});
+    assert.equal(await page.locator('.sidebar').isVisible(),false);
+    assert.equal(await page.locator('.print-heading').isVisible(),true);
+    await page.emulateMedia({media:'screen'});
+    fs.mkdirSync(path.join(__dirname,'../.artifacts'),{recursive:true});
+    await open('dashboard');
+    await page.screenshot({path:path.join(__dirname,'../.artifacts/browser-desktop.png'),fullPage:true});
+    await page.setViewportSize({width:390,height:844});
+    await page.screenshot({path:path.join(__dirname,'../.artifacts/browser-mobile.png'),fullPage:true});
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Mobile page overflows horizontally');
+    const isolated=await browser.newContext();
+    const isolatedPage=await isolated.newPage();
+    await isolatedPage.goto(url);
+    assert.equal(await isolatedPage.getByRole('button',{name:'Create local account'}).count(),1,'A fresh browser must not inherit records');
+    await isolated.close();
+    assert.deepEqual(errors,[]);
+    console.log('PASS: setup, registration, duplicate LRN, edit, incomplete/full grades, reload persistence, filters, CSV, reports, backup, password change, logout Yes/No, deletion Yes/No, restore, print CSS, mobile layout, browser isolation, and no browser runtime errors.');
+  } finally { await browser.close(); await new Promise(resolve=>server.close(resolve)); }
+}
+run().catch(error=>{console.error(error);server.close();process.exitCode=1;});
