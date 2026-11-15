@@ -1,0 +1,6 @@
+Options -Indexes
+<FilesMatch "^(app|router|server)\.php$">
+Require all denied
+</FilesMatch>
+RewriteEngine On
+RewriteRule ^storage/ - [F,L]
