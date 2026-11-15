@@ -90,7 +90,14 @@
     return sorted(data.students.filter(s => (!term || `${s.first_name} ${s.last_name} ${s.lrn} ${s.section}`.toLowerCase().includes(term)) && (!filters.strand || s.strand===filters.strand) && (!filters.year || s.school_year===filters.year)));
   }
   function input(label, name, value='', type='text', required=false, extra='') {
+    if(type==='password') {
+      const id='password-'+name;
+      return `<div class="password-field"><label for="${h(id)}">${h(label)}${required?' *':''}</label><div class="password-control"><input id="${h(id)}" data-password-input type="password" name="${h(name)}" value="${h(value)}" ${required?'required':''} ${extra} maxlength="500"><button type="button" class="password-toggle" data-action="toggle-password" data-label="${h(label.toLowerCase())}" aria-controls="${h(id)}" aria-label="Show ${h(label.toLowerCase())}" aria-pressed="false" title="Show ${h(label.toLowerCase())}">${passwordIcon(false)}</button></div></div>`;
+    }
     return `<label>${h(label)}${required?' *':''}<input type="${type}" name="${h(name)}" value="${h(value)}" ${required?'required':''} ${extra} maxlength="500"></label>`;
+  }
+  function passwordIcon(visible) {
+    return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>${visible?'<path d="m3 3 18 18"/>':''}</svg>`;
   }
   function select(label,name,options,value='',all='Select an option',required=false) {
     return `<label>${h(label)}${required?' *':''}<select name="${h(name)}" ${required?'required':''}><option value="">${h(all)}</option>${options.map(v=>`<option value="${h(v)}" ${v===value?'selected':''}>${h(v)}</option>`).join('')}</select></label>`;
@@ -269,7 +276,20 @@
   });
   app.addEventListener('click', async event => {
     const button=event.target.closest('[data-action]'); if(!button) return;
-    event.preventDefault(); if(busy) return;
+    event.preventDefault();
+    if(button.dataset.action==='toggle-password') {
+      const field=document.getElementById(button.getAttribute('aria-controls'));
+      if(!field?.hasAttribute('data-password-input')) return;
+      const visible=field.type==='password';
+      field.type=visible?'text':'password';
+      const label=(visible?'Hide ':'Show ')+button.dataset.label;
+      button.setAttribute('aria-label',label);
+      button.setAttribute('aria-pressed',String(visible));
+      button.title=label;
+      button.innerHTML=passwordIcon(visible);
+      return;
+    }
+    if(busy) return;
     try {
       const data=read(); if(!logged(data)) {render(); return;}
       const action=button.dataset.action;

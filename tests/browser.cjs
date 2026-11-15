@@ -39,12 +39,23 @@ async function run() {
     }
     await page.goto(url);
     assert.equal(await page.locator('form[data-form="login"]').count(),1);
+    await page.locator('[name="password"]').fill('Visibility-test-123');
+    await page.getByRole('button',{name:'Show password',exact:true}).click();
+    assert.equal(await page.locator('[name="password"]').getAttribute('type'),'text');
+    assert.equal(await page.locator('[name="password"]').inputValue(),'Visibility-test-123');
+    await page.getByRole('button',{name:'Hide password',exact:true}).click();
+    assert.equal(await page.locator('[name="password"]').getAttribute('type'),'password');
+    assert.equal(await page.locator('form[data-form="login"]').count(),1,'Toggling visibility must not submit the form');
     await page.locator('.auth-tabs a[href="#signup"]').click();
     await page.locator('form[data-form="setup"]').waitFor();
     await page.locator('[name="username"]').fill('local_admin');
     await page.locator('[name="password"]').fill('Test-password-123');
     await page.locator('[name="confirm"]').fill('Test-password-123');
-    await page.locator('form[data-form="setup"] button').click();
+    await page.getByRole('button',{name:'Show confirm password',exact:true}).click();
+    assert.equal(await page.locator('[name="confirm"]').getAttribute('type'),'text');
+    assert.equal(await page.locator('[name="password"]').getAttribute('type'),'password');
+    await page.getByRole('button',{name:'Hide confirm password',exact:true}).click();
+    await page.locator('form[data-form="setup"] button:not([type="button"])').click();
     await alertText('Account created'); await ok();
     assert.equal(await page.locator('.stat strong').first().textContent(), '0');
     await register(); await alertText('Student created'); await ok();
@@ -92,7 +103,13 @@ async function run() {
     await passwordForm.locator('[name="current"]').fill('Test-password-123');
     await passwordForm.locator('[name="password"]').fill('Changed-password-123');
     await passwordForm.locator('[name="confirm"]').fill('Changed-password-123');
-    await passwordForm.getByRole('button').click();
+    await passwordForm.getByRole('button',{name:'Show current password',exact:true}).click();
+    assert.equal(await passwordForm.locator('[name="current"]').getAttribute('type'),'text');
+    await passwordForm.getByRole('button',{name:'Hide current password',exact:true}).click();
+    await passwordForm.getByRole('button',{name:'Show new password',exact:true}).click();
+    assert.equal(await passwordForm.locator('[name="password"]').getAttribute('type'),'text');
+    await passwordForm.getByRole('button',{name:'Hide new password',exact:true}).click();
+    await passwordForm.getByRole('button',{name:'Update password',exact:true}).click();
     await alertText('Password updated'); await ok();
     await page.locator('.logout').click();
     await alertText('Sign out?');
@@ -103,7 +120,7 @@ async function run() {
     await alertText('Logout successful'); await ok();
     await page.locator('[name="username"]').fill('local_admin');
     await page.locator('[name="password"]').fill('Changed-password-123');
-    await page.locator('form[data-form="login"] button').click();
+    await page.locator('form[data-form="login"] button:not([type="button"])').click();
     await alertText('Login successful'); await ok();
     await open('students');
     await page.getByRole('link',{name:'Delete',exact:true}).click();
@@ -121,7 +138,7 @@ async function run() {
     await alertText('Backup restored'); await ok();
     await page.locator('[name="username"]').fill('local_admin');
     await page.locator('[name="password"]').fill('Test-password-123');
-    await page.locator('form[data-form="login"] button').click();
+    await page.locator('form[data-form="login"] button:not([type="button"])').click();
     await alertText('Login successful'); await ok();
     await open('profile?id='+id);
     assert((await page.locator('tfoot').textContent()).includes('85.00'));
@@ -140,10 +157,10 @@ async function run() {
     await page.locator('[name="username"]').fill('LOCAL_ADMIN');
     await page.locator('[name="password"]').fill('Second-password-123');
     await page.locator('[name="confirm"]').fill('Second-password-123');
-    await page.locator('form[data-form="setup"] button').click();
+    await page.locator('form[data-form="setup"] button:not([type="button"])').click();
     await alertText('username already exists'); await ok();
     await page.locator('[name="username"]').fill('second_admin');
-    await page.locator('form[data-form="setup"] button').click();
+    await page.locator('form[data-form="setup"] button:not([type="button"])').click();
     await alertText('Account created'); await ok();
     assert.equal(await page.locator('.stat strong').first().textContent(),'0');
     await register('123456789012','Second Account');
@@ -153,10 +170,10 @@ async function run() {
     await alertText('Logout successful'); await ok();
     await page.locator('[name="username"]').fill('LOCAL_ADMIN');
     await page.locator('[name="password"]').fill('wrong-password');
-    await page.locator('form[data-form="login"] button').click();
+    await page.locator('form[data-form="login"] button:not([type="button"])').click();
     await alertText('Invalid username or password'); await ok();
     await page.locator('[name="password"]').fill('Test-password-123');
-    await page.locator('form[data-form="login"] button').click();
+    await page.locator('form[data-form="login"] button:not([type="button"])').click();
     await alertText('Login successful'); await ok();
     await open('students');
     assert((await page.locator('tbody').textContent()).includes('Alex Updated'));
@@ -177,14 +194,14 @@ async function run() {
     await legacyPage.reload();
     await legacyPage.locator('[name="username"]').fill('local_admin');
     await legacyPage.locator('[name="password"]').fill('Test-password-123');
-    await legacyPage.locator('form[data-form="login"] button').click();
+    await legacyPage.locator('form[data-form="login"] button:not([type="button"])').click();
     await legacyPage.locator('#notification').getByRole('button',{name:'OK, got it'}).click();
     assert.equal(await legacyPage.locator('.stat strong').first().textContent(),'1');
     await legacyPage.goto(url+'#signup');
     await legacyPage.locator('[name="username"]').fill('new_account');
     await legacyPage.locator('[name="password"]').fill('Second-password-123');
     await legacyPage.locator('[name="confirm"]').fill('Second-password-123');
-    await legacyPage.locator('form[data-form="setup"] button').click();
+    await legacyPage.locator('form[data-form="setup"] button:not([type="button"])').click();
     await legacyPage.locator('#notification').getByRole('button',{name:'OK, got it'}).click();
     const migrated=await legacyPage.evaluate(()=>JSON.parse(localStorage.getItem('lnvs.studentrecords.browser.v1')));
     assert.equal(migrated.version,2);
@@ -193,7 +210,7 @@ async function run() {
     assert.equal(migrated.accounts.find(a=>a.id==='legacy').data.grades[id][Object.keys(migrated.accounts.find(a=>a.id==='legacy').data.grades[id])[0]][0],90);
     await legacyContext.close();
     assert.deepEqual(errors,[]);
-    console.log('PASS: Login/Create account choices, account isolation, duplicate username, incorrect password, legacy-data migration, registration, duplicate LRN, edit, grades, reload persistence, filters, CSV, reports, backup, password change, logout Yes/No, deletion Yes/No, restore, print CSS, mobile layout, browser isolation, and no browser runtime errors.');
+    console.log('PASS: password eye toggles (login, signup, password settings), Login/Create account choices, account isolation, duplicate username, incorrect password, legacy-data migration, registration, duplicate LRN, edit, grades, reload persistence, filters, CSV, reports, backup, password change, logout Yes/No, deletion Yes/No, restore, print CSS, mobile layout, browser isolation, and no browser runtime errors.');
   } catch(error) {
     const failedPage=browser.contexts()[0]?.pages()[0];
     if(failedPage) {
