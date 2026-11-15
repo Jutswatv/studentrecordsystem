@@ -6,7 +6,7 @@ Two working editions are included: an online browser-storage application for Git
 
 Open **https://jutswatv.github.io/studentrecordsystem/** in a normal browser window.
 
-1. Create your local administrator account (password: at least 12 characters).
+1. Choose **Create account** to register a local account (password: at least 12 characters), or **Login** to use an existing one.
 2. Register students, manage quarterly grades, and view reports.
 3. Go to **Account & backups** and download a full JSON backup regularly.
 
@@ -16,6 +16,7 @@ The online version starts empty. It supports registration, editing, confirmed de
 
 - Records are saved on this browser profile for this website. They persist through refresh and signing out.
 - Different browsers, devices, or profiles have separate workspaces. There is no automatic sharing or synchronization.
+- Multiple local accounts can use this browser. Each has its own students and grades; usernames must be unique on this browser. Existing single-account records and passwords are preserved when upgrading.
 - Clearing site data, uninstalling the browser, private browsing, storage eviction, or losing the device may erase records. Data on localhost is separate from data on the GitHub Pages address.
 - Local sign-in is a convenience lock, not server authentication. Passwords are hashed with PBKDF2, but student records are **not encrypted**. Someone with access to this browser, developer tools, or other scripts on the same origin may access them. Use a trusted device.
 - There is no password-recovery server. Keep your local password and backups safe.
@@ -24,7 +25,7 @@ The online version starts empty. It supports registration, editing, confirmed de
 
 **Download full backup** exports the local account, students, and grades as a JSON file. Store it privately. CSV export contains student information only, not grades or account settings.
 
-To move records, create a local account in the destination browser, then open **Account & backups > Restore a backup**. Choose your JSON backup and confirm replacement. Sign in using the username and password from that backup. Restoring replaces the destination workspace, so export its existing backup first if needed.
+To move records, create a local account in the destination browser, then open **Account & backups > Restore a backup**. Choose your JSON backup and confirm replacement. Log in using the username and password from that backup. Restoring replaces only the current account's workspace, so export its existing backup first if needed. Other local accounts are kept. A backup cannot replace the current account with a username already used by another local account.
 
 ### Build the GitHub Pages version
 

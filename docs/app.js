@@ -2,6 +2,7 @@
 (() => {
   const KEY = 'lnvs.studentrecords.browser.v1';
   const SESSION = KEY + '.session';
+  const ACTIVE = KEY + '.active-account';
   const STRANDS = ['STEM', 'ABM', 'HUMSS', 'GAS', 'TVL'];
   const SUBJECTS = ['Contemporary Philippine Arts', 'Media and Information Literacy', 'Physical Education and Health', 'Practical Research 2', 'English for Academic Purposes', 'Entrepreneurship', 'Work Immersion'];
   const FIELDS = ['lrn','first_name','last_name','middle_name','sex','birth_date','strand','section','school_year','email','phone','address','guardian','guardian_phone'];
@@ -13,19 +14,38 @@
   const blank = () => ({version:1, admin:null, students:[], grades:{}});
   const num = value => value === null ? '—' : Number(value).toFixed(2);
   const fullName = s => `${s.last_name}, ${s.first_name}${s.middle_name ? ' '+s.middle_name : ''}`;
-  function read() {
+  function readStore() {
     const raw = localStorage.getItem(KEY);
-    if (!raw) return blank();
-    const data = JSON.parse(raw);
-    if (data.version !== 1 || !Array.isArray(data.students) || !data.grades || typeof data.grades !== 'object') throw new Error('Your browser data could not be read. Do not clear storage. Restore a backup from another browser profile if needed.');
-    return data;
+    if (!raw) return {version:2, accounts:[]};
+    const store = JSON.parse(raw);
+    const valid = data => data && data.version===1 && data.admin && typeof data.admin.username==='string' && typeof data.admin.hash==='string' && Array.isArray(data.students) && data.grades && typeof data.grades==='object';
+    // Older single-account workspaces remain readable without changing their data.
+    if (store.version===1 && valid(store)) return {version:2, accounts:[{id:'legacy', data:store}]};
+    if (store.version!==2 || !Array.isArray(store.accounts) || store.accounts.some(account=>!account || typeof account.id!=='string' || !valid(account.data))) throw new Error('Your browser data could not be read. Do not clear storage. Restore a backup from another browser profile if needed.');
+    return store;
   }
-  function write(data) {
-    try { localStorage.setItem(KEY, JSON.stringify(data)); }
+  function currentAccount(store) {
+    const id=sessionStorage.getItem(ACTIVE);
+    return store.accounts.find(account=>account.id===id) || (!id ? store.accounts.find(account=>account.data.admin.hash===sessionStorage.getItem(SESSION)) : null);
+  }
+  function read() {
+    const store=readStore();
+    return (currentAccount(store)||store.accounts[0])?.data || blank();
+  }
+  function saveStore(store) {
+    try { localStorage.setItem(KEY, JSON.stringify(store)); }
     catch (_) { throw new Error('Unable to save in this browser. Storage may be full or disabled. Export a backup and free some browser storage before trying again.'); }
   }
+  function write(data) {
+    const store=readStore(), account=currentAccount(store);
+    if(!account || account.data.admin.hash!==sessionStorage.getItem(SESSION)) throw new Error('Please sign in before saving changes.');
+    if(store.accounts.some(other=>other.id!==account.id && other.data.admin.username.toLowerCase()===data.admin.username.toLowerCase())) throw new Error('Another local account already uses the username in this backup. Sign in to that account before restoring it.');
+    account.data=data;
+    saveStore(store);
+    sessionStorage.setItem(ACTIVE,account.id);
+  }
   function logged(data) {
-    return data.admin && sessionStorage.getItem(SESSION) === data.admin.hash;
+    return !!data.admin && !!currentAccount(readStore()) && sessionStorage.getItem(SESSION) === data.admin.hash;
   }
   function route() {
     const [name='dashboard', query=''] = location.hash.slice(1).split('?');
@@ -76,9 +96,9 @@
     return `<label>${h(label)}${required?' *':''}<select name="${h(name)}" ${required?'required':''}><option value="">${h(all)}</option>${options.map(v=>`<option value="${h(v)}" ${v===value?'selected':''}>${h(v)}</option>`).join('')}</select></label>`;
   }
   function auth(data) {
-    const setup=!data.admin;
-    document.title=(setup?'Create local account':'Sign in')+' | LNVS';
-    app.innerHTML=`<main class="auth"><div class="brand">${schoolBrand()}</div><section class="card"><span class="eyebrow">BROWSER WORKSPACE</span><h1>${setup?'Create your local account':'Welcome back'}</h1><p class="muted">${setup?'Start your own Grade 12 student record workspace on this browser.':'Sign in to your saved workspace on this browser.'}</p><form data-form="${setup?'setup':'login'}">${input('Username','username',setup?'':data.admin.username,'text',true,'autocomplete="username" minlength="3" maxlength="50"')}${input('Password','password','','password',true,`${setup?'minlength="12"':''} autocomplete="${setup?'new-password':'current-password'}"`)}${setup?input('Confirm password','confirm','','password',true,'minlength="12" autocomplete="new-password"'):''}<button class="button wide">${setup?'Create local account':'Sign in'} &rarr;</button></form><p class="local-note"><b>Saved only on this browser.</b> This local sign-in is a convenience lock, not server security. Records are not encrypted. Clearing site data, private browsing, or changing devices can lose access to your records. Export backups regularly.</p></section><p class="muted center">Your records are never sent to GitHub or a database server.</p></main>`;
+    const setup=route().name==='signup';
+    document.title=(setup?'Create account':'Login')+' | LNVS';
+    app.innerHTML=`<main class="auth"><div class="brand">${schoolBrand()}</div><section class="card"><div class="auth-tabs" aria-label="Account access"><a href="#login" class="${setup?'':'active'}" ${setup?'':'aria-current="page"'}>Login</a><a href="#signup" class="${setup?'active':''}" ${setup?'aria-current="page"':''}>Create account</a></div><span class="eyebrow">BROWSER WORKSPACE</span><h1>${setup?'Create your account':'Welcome back'}</h1><p class="muted">${setup?'Create a local account with its own student records and grades.':'Log in to your saved account on this browser.'}</p><form data-form="${setup?'setup':'login'}">${input('Username','username','','text',true,'autocomplete="username" minlength="3" maxlength="50"')}${input('Password','password','','password',true,`${setup?'minlength="12"':''} autocomplete="${setup?'new-password':'current-password'}"`)}${setup?input('Confirm password','confirm','','password',true,'minlength="12" autocomplete="new-password"'):''}<button class="button wide">${setup?'Create account':'Login'} &rarr;</button></form><p class="auth-prompt">${setup?'Already have an account? <a href="#login">Login</a>':'New here? <a href="#signup">Create an account</a>'}</p>${logged(data)?'<p class="auth-prompt"><a href="#dashboard">Back to your workspace</a></p>':''}<p class="local-note"><b>Accounts stay on this browser.</b> Each local account has separate records. Local login is a convenience lock, not server security; records are not encrypted. Export backups regularly.</p></section><p class="muted center">Your records are never sent to GitHub or a database server.</p></main>`;
   }
   function layout(data,title,active,body,action='') {
     const nav=[['dashboard','&#9707;','Dashboard'],['students','&#9636;','Student records'],['register','&#65291;','Registration'],['grades','&#9638;','Grades management'],['reports','&#9719;','Reports']];
@@ -120,12 +140,12 @@
     return stats(data)+insights(data)+`<section class="card"><div class="card-heading"><h2>Enrollment summary</h2><button class="button secondary" data-action="csv-all">Export all students</button></div><div class="table-wrap"><table><thead><tr><th>School year</th><th>Strand</th><th>Male</th><th>Female</th><th>Total</th></tr></thead><tbody>${[...groups.values()].sort((a,b)=>b.year.localeCompare(a.year)||a.strand.localeCompare(b.strand)).map(r=>`<tr><td>${h(r.year)}</td><td>${h(r.strand)}</td><td>${r.male}</td><td>${r.female}</td><td>${r.total}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Register students to see enrollment summaries.</td></tr>'}</tbody></table></div></section>`;
   }
   function settings(data) {
-    return `<div class="settings-stack"><section class="card"><h2>Back up your workspace</h2><p class="muted">A full JSON backup includes your local account, students, and grades. Store it privately. CSV is useful for student lists, but it does not include your account or grades.</p><div class="backup-actions"><button class="button" data-action="backup">Download full backup</button><button class="button secondary" data-action="csv-all">Download students CSV</button></div><hr><h2>Restore a backup</h2><p class="muted">Restore a backup on this browser or a new device. Restoring replaces all current records and signs you out. Use the password from the restored backup to sign in.</p><form data-form="restore"><label>Gradebook backup (.json)<input type="file" name="backup" accept="application/json,.json" required></label><button class="button secondary">Restore backup</button></form></section><section class="card"><h2>Change local password</h2><p class="muted">Signed in as ${h(data.admin.username)}. Use at least 12 characters.</p><form data-form="password">${input('Current password','current','','password',true,'autocomplete="current-password"')}${input('New password','password','','password',true,'minlength="12" autocomplete="new-password"')}${input('Confirm new password','confirm','','password',true,'minlength="12" autocomplete="new-password"')}<button class="button">Update password</button></form></section><section class="card"><h2>About browser storage</h2><p class="muted">This is a working local application, not a server database. Your information stays in this browser profile on this site. It is not shared with other devices, browsers, or administrators. The local sign-in does not encrypt the records or protect them from someone with access to this browser or its developer tools. Keep backups and use a trusted device.</p></section></div>`;
+    return `<div class="settings-stack"><section class="card"><h2>Back up your workspace</h2><p class="muted">A full JSON backup includes your local account, students, and grades. Store it privately. CSV is useful for student lists, but it does not include your account or grades.</p><div class="backup-actions"><button class="button" data-action="backup">Download full backup</button><button class="button secondary" data-action="csv-all">Download students CSV</button></div><hr><h2>Restore a backup</h2><p class="muted">Restore a backup on this browser or a new device. Restoring replaces this account?s records and signs you out. Other local accounts are kept. Use the password from the restored backup to sign in.</p><form data-form="restore"><label>Gradebook backup (.json)<input type="file" name="backup" accept="application/json,.json" required></label><button class="button secondary">Restore backup</button></form></section><section class="card"><h2>Change local password</h2><p class="muted">Signed in as ${h(data.admin.username)}. Use at least 12 characters.</p><form data-form="password">${input('Current password','current','','password',true,'autocomplete="current-password"')}${input('New password','password','','password',true,'minlength="12" autocomplete="new-password"')}${input('Confirm new password','confirm','','password',true,'minlength="12" autocomplete="new-password"')}<button class="button">Update password</button></form></section><section class="card"><h2>Account access</h2><p class="muted">Switch accounts or create another local account with a separate student workspace.</p><div class="backup-actions"><a class="button secondary" href="#login">Login to another account</a><a class="button secondary" href="#signup">Create account</a></div></section><section class="card"><h2>About browser storage</h2><p class="muted">This is a working local application, not a server database. Your information stays in this browser profile on this site. It is not shared with other devices, browsers, or administrators. The local sign-in does not encrypt the records or protect them from someone with access to this browser or its developer tools. Keep backups and use a trusted device.</p></section></div>`;
   }
   function render() {
     try {
       const data=read();
-      if(!logged(data)) { auth(data); return; }
+      if(!logged(data) || ['login','signup'].includes(route().name)) { auth(data); return; }
       const {name,params}=route();
       const student=data.students.find(s=>s.id===params.get('id'));
       const add='<a class="button" href="#register">&#65291; Register student</a>';
@@ -197,17 +217,24 @@
     try {
       let data=read();
       if(kind==='setup') {
-        if(data.admin) throw new Error('A local account already exists. Refresh and sign in.');
         const username=String(fd.get('username')).trim(), password=String(fd.get('password'));
         if(username.length<3||username.length>50||password.length<12) throw new Error('Use a username of 3-50 characters and a password of at least 12 characters.');
         if(password!==fd.get('confirm')) throw new Error('Passwords do not match.');
+        if(readStore().accounts.some(account=>account.data.admin.username.toLowerCase()===username.toLowerCase())) throw new Error('That username already exists on this browser. Choose another username or log in.');
         const admin=await makeAdmin(username,password);
-        data=read(); if(data.admin) throw new Error('Another tab created an account. Refresh and sign in.');
-        data.admin=admin; write(data); sessionStorage.setItem(SESSION,admin.hash); go('dashboard'); render(); await popup('Account created','Your local workspace is ready. Remember to export backups regularly.'); return;
+        const store=readStore();
+        if(store.accounts.some(account=>account.data.admin.username.toLowerCase()===username.toLowerCase())) throw new Error('That username was just registered in another tab. Choose another username or log in.');
+        data=blank(); data.admin=admin;
+        const id=crypto.randomUUID(); store.accounts.push({id,data}); saveStore(store);
+        sessionStorage.setItem(ACTIVE,id); sessionStorage.setItem(SESSION,admin.hash); filters={search:'',strand:'',year:''}; go('dashboard'); render(); await popup('Account created','Your local account is ready with an empty student workspace.'); return;
       }
       if(kind==='login') {
-        if(!data.admin || String(fd.get('username')).trim()!==data.admin.username || await passwordHash(String(fd.get('password')),data.admin.salt)!==data.admin.hash) throw new Error('Invalid username or password.');
-        sessionStorage.setItem(SESSION,data.admin.hash); go('dashboard'); render(); await popup('Login successful','Welcome back to your local student workspace.'); return;
+        const username=String(fd.get('username')).trim().toLowerCase();
+        const account=readStore().accounts.find(account=>account.data.admin.username.toLowerCase()===username);
+        if(!account || await passwordHash(String(fd.get('password')),account.data.admin.salt)!==account.data.admin.hash) throw new Error('Invalid username or password.');
+        const latest=readStore().accounts.find(item=>item.id===account.id);
+        if(!latest || latest.data.admin.hash!==account.data.admin.hash) throw new Error('This account changed in another tab. Try logging in again.');
+        sessionStorage.setItem(ACTIVE,account.id); sessionStorage.setItem(SESSION,account.data.admin.hash); filters={search:'',strand:'',year:''}; go('dashboard'); render(); await popup('Login successful','Welcome back to your local student workspace.'); return;
       }
       if(!logged(data)) throw new Error('Please sign in before making changes.');
       if(kind==='filter') { filters={search:String(fd.get('search')).trim(),strand:String(fd.get('strand')),year:String(fd.get('year')).trim()}; render(); return; }
@@ -235,7 +262,7 @@
         const file=fd.get('backup'); if(!(file instanceof File)||!file.size) throw new Error('Choose a Gradebook backup file.'); if(file.size>10*1024*1024) throw new Error('Choose a backup smaller than 10 MB.');
         let restored; try {restored=validateBackup(JSON.parse(await file.text()));} catch(error) {throw new Error('Backup was not restored: '+error.message);}
         if(!await popup('Replace current workspace?',`This will replace your current account, students, and grades with ${restored.students.length} student records from the backup. Download your current backup first if you need it.`,'warning',true,'Yes, restore backup','No, keep current data')) return;
-        write(restored); sessionStorage.removeItem(SESSION); render(); await popup('Backup restored','Sign in using the username and password from the restored backup.'); return;
+        write(restored); sessionStorage.removeItem(SESSION); sessionStorage.removeItem(ACTIVE); go('login'); render(); await popup('Backup restored','Log in using the username and password from the restored backup.'); return;
       }
     } catch(error) { await popup('Please try again',error.message,'error'); }
     finally { busy=false; if(submit) submit.disabled=false; }
@@ -246,7 +273,7 @@
     try {
       const data=read(); if(!logged(data)) {render(); return;}
       const action=button.dataset.action;
-      if(action==='logout') { if(!await popup('Sign out?','Are you sure you want to sign out of your local account?','warning',true,'Yes, sign out','No, stay signed in')) return; sessionStorage.removeItem(SESSION); render(); await popup('Logout successful','You have been signed out. Your saved records remain on this browser.'); }
+      if(action==='logout') { if(!await popup('Sign out?','Are you sure you want to sign out of your local account?','warning',true,'Yes, sign out','No, stay signed in')) return; sessionStorage.removeItem(SESSION); sessionStorage.removeItem(ACTIVE); filters={search:'',strand:'',year:''}; go('login'); render(); await popup('Logout successful','You have been signed out. Your saved records remain on this browser.'); }
       else if(action==='reset-filters') {filters={search:'',strand:'',year:''}; render();}
       else if(action==='print') window.print();
       else if(action==='csv'||action==='csv-all') {csv(action==='csv'?filtered(data):sorted(data.students)); await popup('CSV download started','Your student list has been prepared. CSV does not include grades; use a full backup to preserve your workspace.');}

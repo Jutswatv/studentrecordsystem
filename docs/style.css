@@ -220,6 +220,12 @@ body:has(.app-dialog[open])::after { display:none; }
 .button:disabled { opacity:.6; cursor:wait; }
 input[type=file] { padding:9px; }
 .auth label { text-align:left; }
+.auth-tabs { display:flex; gap:6px; padding:5px; margin-bottom:26px; background:#edf3f8; border:1px solid #e1e9f1; border-radius:11px; }
+.auth-tabs a { flex:1; padding:11px 8px; text-align:center; border-radius:8px; color:#637a91; font-size:13px; font-weight:650; }
+.auth-tabs a:hover { background:#e1edf4; text-decoration:none; }
+.auth-tabs a.active { background:#087f8c; color:#fff; box-shadow:0 3px 8px #087f8c22; }
+.auth-prompt { text-align:center; color:#6a7d92; font-size:12px; line-height:1.7; }
+.auth-prompt a { font-weight:650; }
 .filters .button { flex-shrink:0; }
 @media(max-width:700px){.dialog-actions{flex-direction:column}.backup-actions .button{width:100%}.form-footer{justify-content:flex-start}}
 @media print{.no-print,.app-dialog,.backup-actions{display:none!important}.print-heading{display:flex;gap:15px;align-items:center;margin-bottom:20px}.print-heading img{width:65px;height:65px;object-fit:contain}.print-heading h1{font-size:19px}.print-heading p{margin:4px 0}.content{padding:0}.local-note{display:none}.main{margin:0}.table-wrap{overflow:visible}body:has(.app-dialog[open]){overflow:visible}}

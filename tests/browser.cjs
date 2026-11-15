@@ -38,10 +38,13 @@ async function run() {
       await form.getByRole('button',{name:'Register student'}).click();
     }
     await page.goto(url);
+    assert.equal(await page.locator('form[data-form="login"]').count(),1);
+    await page.locator('.auth-tabs a[href="#signup"]').click();
+    await page.locator('form[data-form="setup"]').waitFor();
     await page.locator('[name="username"]').fill('local_admin');
     await page.locator('[name="password"]').fill('Test-password-123');
     await page.locator('[name="confirm"]').fill('Test-password-123');
-    await page.getByRole('button',{name:'Create local account'}).click();
+    await page.locator('form[data-form="setup"] button').click();
     await alertText('Account created'); await ok();
     assert.equal(await page.locator('.stat strong').first().textContent(), '0');
     await register(); await alertText('Student created'); await ok();
@@ -98,6 +101,7 @@ async function run() {
     await page.locator('.logout').click();
     await modal.getByRole('button',{name:'Yes, sign out'}).click();
     await alertText('Logout successful'); await ok();
+    await page.locator('[name="username"]').fill('local_admin');
     await page.locator('[name="password"]').fill('Changed-password-123');
     await page.locator('form[data-form="login"] button').click();
     await alertText('Login successful'); await ok();
@@ -115,6 +119,7 @@ async function run() {
     await alertText('Replace current workspace?');
     await modal.getByRole('button',{name:'Yes, restore backup'}).click();
     await alertText('Backup restored'); await ok();
+    await page.locator('[name="username"]').fill('local_admin');
     await page.locator('[name="password"]').fill('Test-password-123');
     await page.locator('form[data-form="login"] button').click();
     await alertText('Login successful'); await ok();
@@ -130,13 +135,73 @@ async function run() {
     await page.setViewportSize({width:390,height:844});
     await page.screenshot({path:path.join(__dirname,'../.artifacts/browser-mobile.png'),fullPage:true});
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Mobile page overflows horizontally');
+    // Creating a second account must preserve and isolate the first account.
+    await open('signup');
+    await page.locator('[name="username"]').fill('LOCAL_ADMIN');
+    await page.locator('[name="password"]').fill('Second-password-123');
+    await page.locator('[name="confirm"]').fill('Second-password-123');
+    await page.locator('form[data-form="setup"] button').click();
+    await alertText('username already exists'); await ok();
+    await page.locator('[name="username"]').fill('second_admin');
+    await page.locator('form[data-form="setup"] button').click();
+    await alertText('Account created'); await ok();
+    assert.equal(await page.locator('.stat strong').first().textContent(),'0');
+    await register('123456789012','Second Account');
+    await alertText('Student created'); await ok();
+    await page.locator('.logout').click();
+    await modal.getByRole('button',{name:'Yes, sign out'}).click();
+    await alertText('Logout successful'); await ok();
+    await page.locator('[name="username"]').fill('LOCAL_ADMIN');
+    await page.locator('[name="password"]').fill('wrong-password');
+    await page.locator('form[data-form="login"] button').click();
+    await alertText('Invalid username or password'); await ok();
+    await page.locator('[name="password"]').fill('Test-password-123');
+    await page.locator('form[data-form="login"] button').click();
+    await alertText('Login successful'); await ok();
+    await open('students');
+    assert((await page.locator('tbody').textContent()).includes('Alex Updated'));
+    assert(!(await page.locator('tbody').textContent()).includes('Second Account'));
+    await open('profile?id='+id);
+    assert((await page.locator('tfoot').textContent()).includes('85.00'));
     const isolated=await browser.newContext();
     const isolatedPage=await isolated.newPage();
     await isolatedPage.goto(url);
-    assert.equal(await isolatedPage.getByRole('button',{name:'Create local account'}).count(),1,'A fresh browser must not inherit records');
+    assert.equal(await isolatedPage.locator('form[data-form="login"]').count(),1,'A fresh browser starts at Login');
+    assert.equal(await isolatedPage.locator('.auth-tabs a[href="#signup"]').count(),1,'Create account must always be visible');
     await isolated.close();
+    // The previously published single-account format must still log in and migrate safely.
+    const legacyContext=await browser.newContext();
+    const legacyPage=await legacyContext.newPage();
+    await legacyPage.goto(url);
+    await legacyPage.evaluate(backup=>{localStorage.setItem('lnvs.studentrecords.browser.v1',backup);},backup.toString('utf8'));
+    await legacyPage.reload();
+    await legacyPage.locator('[name="username"]').fill('local_admin');
+    await legacyPage.locator('[name="password"]').fill('Test-password-123');
+    await legacyPage.locator('form[data-form="login"] button').click();
+    await legacyPage.locator('#notification').getByRole('button',{name:'OK, got it'}).click();
+    assert.equal(await legacyPage.locator('.stat strong').first().textContent(),'1');
+    await legacyPage.goto(url+'#signup');
+    await legacyPage.locator('[name="username"]').fill('new_account');
+    await legacyPage.locator('[name="password"]').fill('Second-password-123');
+    await legacyPage.locator('[name="confirm"]').fill('Second-password-123');
+    await legacyPage.locator('form[data-form="setup"] button').click();
+    await legacyPage.locator('#notification').getByRole('button',{name:'OK, got it'}).click();
+    const migrated=await legacyPage.evaluate(()=>JSON.parse(localStorage.getItem('lnvs.studentrecords.browser.v1')));
+    assert.equal(migrated.version,2);
+    assert.equal(migrated.accounts.length,2);
+    assert.equal(migrated.accounts.find(a=>a.id==='legacy').data.students.length,1);
+    assert.equal(migrated.accounts.find(a=>a.id==='legacy').data.grades[id][Object.keys(migrated.accounts.find(a=>a.id==='legacy').data.grades[id])[0]][0],90);
+    await legacyContext.close();
     assert.deepEqual(errors,[]);
-    console.log('PASS: setup, registration, duplicate LRN, edit, incomplete/full grades, reload persistence, filters, CSV, reports, backup, password change, logout Yes/No, deletion Yes/No, restore, print CSS, mobile layout, browser isolation, and no browser runtime errors.');
+    console.log('PASS: Login/Create account choices, account isolation, duplicate username, incorrect password, legacy-data migration, registration, duplicate LRN, edit, grades, reload persistence, filters, CSV, reports, backup, password change, logout Yes/No, deletion Yes/No, restore, print CSS, mobile layout, browser isolation, and no browser runtime errors.');
+  } catch(error) {
+    const failedPage=browser.contexts()[0]?.pages()[0];
+    if(failedPage) {
+      fs.mkdirSync(path.join(__dirname,'../.artifacts'),{recursive:true});
+      await failedPage.screenshot({path:path.join(__dirname,'../.artifacts/browser-failure.png'),fullPage:true});
+      console.log(await failedPage.locator('form').evaluateAll(forms=>forms.map(form=>({kind:form.dataset.form,valid:form.checkValidity(),fields:[...form.querySelectorAll('input')].map(input=>({name:input.name,length:input.value.length,valid:input.validity.valid}))}))));
+    }
+    throw error;
   } finally { await browser.close(); await new Promise(resolve=>server.close(resolve)); }
 }
 run().catch(error=>{console.error(error);server.close();process.exitCode=1;});
