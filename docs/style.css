@@ -281,3 +281,180 @@ input[type=file] { padding:9px; }
  .sidebar-bottom .admin { margin-top:8px; padding-top:12px; }
 }
 @media(max-width:700px) { .sidebar nav { max-width:100%; } .sidebar nav a { flex-shrink:0; } }
+
+/* Reference dashboard. CSS decoration and inline SVG keep the app fully offline. */
+.ui-icon { width:24px; height:24px; flex:0 0 24px; display:block; }
+.app-main { min-height:100dvh; background:radial-gradient(ellipse at 90% 0%,#c8eff5a0,transparent 52%),radial-gradient(ellipse at 85% 100%,#c3edf4a0,transparent 45%),linear-gradient(130deg,#eff6fc,#f7faff 45%,#e7f5f9); }
+.app-main .topbar { height:70px; padding:0 38px; background:#f9fbfff0; border-bottom:1px solid #cce2ed; color:#234369; }
+.breadcrumb { display:flex; align-items:center; gap:14px; font-size:14px; }
+.breadcrumb .ui-icon { width:21px; height:21px; flex-basis:21px; }
+.breadcrumb b { font-weight:600; }
+.app-main .topbar>.badge { padding:10px 19px; font-size:14px; background:linear-gradient(120deg,#e2f9fa,#bcebef); color:#00616c; }
+.premium-sidebar { background:radial-gradient(ellipse at 80% 100%,#00647644,transparent 55%),linear-gradient(160deg,#102946,#0b213b 64%,#082b3d); }
+.premium-sidebar .brand { gap:15px; }
+.premium-sidebar .brand .school-name { font-size:14px; line-height:1.3; letter-spacing:0; }
+.premium-sidebar .brand .school-name small { font-size:8px; line-height:1.6; letter-spacing:.7px; font-weight:500; margin-top:6px; }
+.premium-sidebar .brand .school-logo { width:62px; height:62px; flex-basis:62px; padding:2px; }
+.premium-sidebar .nav-label { font-size:10px; letter-spacing:2.4px; color:#b0c4dc; }
+.premium-sidebar .nav-icon { display:flex; align-items:center; justify-content:center; width:24px; flex:0 0 24px; color:#c3d5eb; }
+.premium-sidebar nav a { color:#edf4ff; }
+.premium-sidebar nav a.active { background:linear-gradient(105deg,#00a6b1,#007985); border-color:#22c7cb; box-shadow:0 4px 14px #001b3730; }
+.premium-sidebar nav a.active .nav-icon { color:#ecffff; }
+.premium-sidebar .sidebar-bottom { padding-top:14px; }
+.premium-sidebar .logout { display:flex; gap:16px; align-items:center; width:100%; padding:16px 13px; border-top:1px solid #9bb9d24a; border-radius:0; font-size:14px; color:#e4effb; }
+.premium-sidebar .logout .ui-icon { width:21px; height:21px; }
+.premium-sidebar .admin { border:1px solid #9dc1d729; border-radius:15px; padding:13px; margin-top:15px; background:linear-gradient(110deg,#183e5622,#1d59723b); gap:13px; }
+.premium-sidebar .admin>b { width:46px; height:46px; padding:0; display:grid; place-items:center; flex:0 0 46px; border:1px solid #00bac2; background:linear-gradient(130deg,#11394e,#145b69); color:white; font-size:21px; font-weight:500; }
+.premium-sidebar .admin>span { font-size:14px; font-weight:600; overflow-wrap:anywhere; }
+.premium-sidebar .admin small { font-size:11px; font-weight:400; color:#b2c8dd; margin-top:5px; }
+.dashboard-content { max-width:1600px; padding:28px 32px 32px; }
+.dashboard-hero { isolation:isolate; min-height:174px; padding:29px 38px; margin-bottom:30px; border:1px solid #158b9b55; border-radius:20px; background:linear-gradient(112deg,#073957 0%,#00657c 64%,#00a7ad 100%); box-shadow:0 9px 18px #10567c24; }
+.dashboard-hero::before { content:''; position:absolute; z-index:-1; width:70%; height:270px; top:90px; right:-60px; background:linear-gradient(135deg,#18d4d830,#2ce1df55 45%,#00738445); border:1px solid #26e3df35; border-radius:50%; transform:rotate(-19deg); }
+.dashboard-hero::after { content:''; position:absolute; z-index:-1; width:72%; height:200px; right:-70px; top:143px; border:1px solid #25e5dd75; background:linear-gradient(165deg,#0db9c54f,#36e0dc1a); border-radius:50%; transform:rotate(-21deg); pointer-events:none; }
+.dashboard-hero>div { position:relative; z-index:1; }
+.dashboard-hero .eyebrow { color:#f0fdff; font-size:11px; font-weight:650; letter-spacing:3px; display:block; margin-left:15px; }
+.dashboard-hero h1 { display:flex; align-items:center; gap:16px; font-size:44px; line-height:1.2; font-weight:750; letter-spacing:-1.3px; margin:11px 0 9px; }
+.dashboard-hero h1::before { content:''; width:7px; height:35px; flex:0 0 7px; border-radius:5px; background:linear-gradient(#16eeed,#00adbf); box-shadow:0 0 18px #1ce4e52a; }
+.dashboard-hero p { margin-left:29px; max-width:none; font-size:15px; line-height:1.5; color:#f0fbff; }
+.hero-dots { position:absolute; z-index:-1; width:150px; height:62px; top:10px; right:20%; background:radial-gradient(circle,#1ed1d8 1px,transparent 1.4px) 0 0/15px 15px; opacity:.65; }
+.dashboard-hero .register-button { flex-shrink:0; gap:13px; padding:16px 23px; border-radius:14px; font-size:15px; font-weight:650; border:1px solid #ffe279; background:linear-gradient(120deg,#ffdf69,#f7c53e); color:#062646; box-shadow:0 10px 20px #001a4155,inset 0 1px 0 #fff9; }
+.dashboard-hero .register-button:hover { background:linear-gradient(120deg,#ffe88c,#ffd65d); border-color:#fff0b5; }
+.dashboard-stats { gap:22px; margin-bottom:32px; }
+.dashboard-stats .metric-card { --metric:#00a4aa; --tint:#d9f5f5; --tint-deep:#b3e9ec; display:flex; align-items:flex-start; gap:18px; padding:28px 23px; min-height:178px; margin:0; border:1px solid #d4e7f3; border-top:4px solid var(--metric); border-radius:18px; background:linear-gradient(135deg,#fff,#f4faff); box-shadow:0 7px 14px #1e64811a,0 2px 2px #1e64810a; isolation:isolate; }
+.dashboard-stats .tone-purple { --metric:#7b3ee1; --tint:#f1eaff; --tint-deep:#d7c9ff; }
+.dashboard-stats .tone-amber { --metric:#eda900; --tint:#fff5da; --tint-deep:#f8dfa0; }
+.dashboard-stats .tone-blue { --metric:#1485ee; --tint:#e5f1ff; --tint-deep:#badcfc; }
+.metric-card::before,.metric-card::after { content:''; z-index:-1; position:absolute; width:200px; height:95px; right:-110px; bottom:-45px; border-radius:50%; transform:rotate(-25deg); background:var(--tint); opacity:.85; }
+.metric-card::after { width:200px; height:60px; right:-40px; bottom:-47px; background:var(--tint-deep); opacity:.35; }
+.metric-icon { display:grid; place-items:center; width:62px; height:64px; flex:0 0 62px; border-radius:18px; color:var(--metric); background:linear-gradient(145deg,var(--tint),var(--tint-deep)); }
+.metric-icon .ui-icon { width:35px; height:35px; stroke-width:1.9; }
+.metric-content { min-width:0; padding-top:2px; }
+.metric-label { display:block; color:#102443; font-size:16px; font-weight:650; line-height:1.35; }
+.dashboard-stats .metric-content strong { font-size:44px; letter-spacing:-1.1px; line-height:1.15; font-weight:750; color:#0e2546; margin:9px 0 7px; }
+.dashboard-stats .metric-content small { font-size:12px; color:#42648a; line-height:1.5; margin:0; }
+.dashboard-panels { display:grid; grid-template-columns:1.08fr 1fr; align-items:stretch; gap:25px; }
+.dashboard-panels>.card { margin:0; padding:22px 25px 20px; min-width:0; border:1px solid #cddfed; border-radius:18px; background:linear-gradient(125deg,#ffffffee,#f5faffee); box-shadow:0 10px 20px #245b7d12; }
+.dashboard-panels .card-heading { min-height:51px; padding-bottom:17px; margin-bottom:10px; gap:12px; border-color:#dfe9f2; flex-wrap:nowrap; }
+.dashboard-panels .card-heading h2 { display:flex; align-items:center; gap:13px; font-size:21px; letter-spacing:-.65px; color:#102b4f; font-weight:750; line-height:1.3; }
+.dashboard-panels .card-heading h2 .ui-icon { color:#009f9e; width:29px; height:29px; flex-basis:29px; stroke-width:2.1; }
+.dashboard-panels .card-heading .badge,.academic-overview [data-overview-year] { display:inline-flex; justify-content:center; border:0; background:linear-gradient(115deg,#e4f8f9,#c8eff2); color:#006b75; padding:8px 16px; font-size:12px; font-weight:600; white-space:nowrap; border-radius:25px; flex-shrink:0; }
+.academic-overview [data-overview-year] { width:auto; max-width:160px; min-height:34px; padding:7px 9px 7px 14px; cursor:pointer; font-family:inherit; }
+.strand-row { --strand:#00a19f; display:grid; grid-template-columns:97px minmax(50px,1fr) 83px; align-items:center; gap:15px; min-height:54px; border-bottom:1px solid #dfe9f2; }
+.strand-row:last-child { border:0; }
+.strand-1 { --strand:#7c32cc; }.strand-2 { --strand:#e6aa13; }.strand-3 { --strand:#287ee0; }.strand-4 { --strand:#df4277; }
+.strand-name { display:flex; align-items:center; gap:10px; color:#142d4d; font-weight:500; font-size:14px; }
+.strand-name i { width:11px; height:11px; flex:0 0 11px; border-radius:50%; background:var(--strand); box-shadow:inset 0 1px 2px #fff4; }
+.strand-row meter { display:block; appearance:none; width:100%; height:13px; background:#e2eaf5; border:0; border-radius:12px; overflow:hidden; }
+.strand-row meter::-webkit-meter-bar { background:linear-gradient(90deg,#dce5f1,#e6edf5); height:13px; border:0; border-radius:12px; }
+.strand-row meter::-webkit-meter-optimum-value { background:var(--strand); border-radius:12px; }
+.strand-row meter::-moz-meter-bar { background:var(--strand); border-radius:12px; }
+.strand-count { color:#213f63; font-size:14px; text-align:right; white-space:nowrap; }
+.strand-count small { display:inline; font-size:12px; color:#48668b; margin:0; }
+.overview-rows { display:grid; gap:6px; margin-top:14px; }
+.overview-row { display:grid; grid-template-columns:48px minmax(0,1fr) auto; align-items:center; gap:12px; min-height:49px; padding:4px 12px 4px 5px; border:1px solid #fff9; border-radius:15px; background:linear-gradient(100deg,#eef8fa,#eaf3fa); color:#203f62; font-size:13px; }
+.overview-icon { width:46px; height:40px; display:grid; place-items:center; border-radius:12px; color:#008c9b; background:#def3f7; }
+.overview-icon .ui-icon { width:23px; height:23px; }
+.overview-icon.tone-rose { color:#c53876; background:#f3eaf4; }
+.overview-icon.tone-blue { color:#2774d4; background:#e3effe; }
+.overview-row strong { font-size:25px; font-weight:750; color:#006c75; }
+.overview-link { display:inline-flex; align-items:center; gap:8px; margin-top:13px; font-size:11px; }
+.overview-link .ui-icon { width:14px; height:14px; flex-basis:14px; }
+.dashboard-content>footer { margin-top:25px; opacity:.75; }
+@media(min-width:701px) {
+ .premium-sidebar { width:278px; padding:25px 18px 18px; }
+ .app-main { margin-left:278px; }
+ .premium-sidebar .brand { margin-bottom:25px; padding:0 8px; flex-shrink:0; }
+ .premium-sidebar .nav-label { margin:0 10px 17px; }
+ .premium-sidebar nav { min-height:0; flex:1; overflow-y:auto; padding-right:0; }
+ .premium-sidebar nav a { gap:15px; padding:12px 14px; margin-bottom:3px; font-size:13px; font-weight:500; border-radius:12px; }
+ .premium-sidebar nav .nav-icon { width:23px; flex-basis:23px; }
+ .premium-sidebar nav .nav-icon .ui-icon { width:23px; height:23px; }
+}
+@media(min-width:1600px) {
+ .premium-sidebar { width:306px; padding:26px 18px 20px; }
+ .app-main { margin-left:306px; }
+ .premium-sidebar .brand .school-name { font-size:16px; }
+ .premium-sidebar .brand .school-name small { font-size:9px; }
+ .premium-sidebar .brand .school-logo { width:66px; height:66px; flex-basis:66px; }
+ .premium-sidebar nav a { font-size:15px; padding:12px 17px; }
+ .dashboard-hero { padding:29px 40px; }
+ .dashboard-hero h1 { font-size:46px; }
+ .dashboard-hero p { font-size:16px; }
+ .dashboard-stats .metric-card { min-height:180px; padding:28px 24px; }
+ .metric-icon { width:66px; height:66px; flex-basis:66px; }
+ .metric-label { font-size:17px; }
+ .dashboard-stats .metric-content strong { font-size:46px; }
+ .dashboard-panels .card-heading h2 { font-size:23px; }
+ .strand-row { min-height:57px; }
+ .overview-row { min-height:52px; font-size:14px; }
+}
+@media(min-width:701px) and (max-width:1250px) {
+ .premium-sidebar { width:240px; padding-inline:14px; }
+ .app-main { margin-left:240px; }
+ .premium-sidebar .brand { gap:10px; padding:0 3px; }
+ .premium-sidebar .brand .school-name { font-size:12px; }
+ .premium-sidebar .brand .school-logo { width:52px; height:52px; flex-basis:52px; }
+ .premium-sidebar nav a { font-size:12px; gap:12px; padding:11px; }
+ .dashboard-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .dashboard-panels { grid-template-columns:1fr; }
+ .dashboard-hero { padding:26px; flex-wrap:wrap; gap:20px; }
+ .dashboard-hero h1 { font-size:38px; }
+ .dashboard-hero p { font-size:13px; margin-left:24px; }
+ .dashboard-stats .metric-card { min-height:155px; }
+}
+@media(max-width:700px) {
+ .app-main { margin-left:0; }
+ .premium-sidebar { width:100%; padding:19px 16px 10px; }
+ .premium-sidebar .brand { gap:12px; margin-bottom:14px; padding:0; }
+ .premium-sidebar .brand .school-name { font-size:14px; }
+ .premium-sidebar .brand .school-logo { width:55px; height:55px; flex-basis:55px; }
+ .premium-sidebar nav { gap:5px; }
+ .premium-sidebar nav a { padding:10px 12px; border-radius:9px; font-size:12px; }
+ .premium-sidebar nav a .nav-icon { display:none; }
+ .premium-sidebar .sidebar-bottom { padding-top:0; }
+ .premium-sidebar .logout { border:0; padding:8px 10px; gap:8px; font-size:11px; }
+ .premium-sidebar .logout .ui-icon { width:16px; height:16px; flex-basis:16px; }
+ .premium-sidebar .admin { display:none; }
+ .app-main .topbar { padding:0 18px; height:58px; }
+ .breadcrumb { font-size:11px; gap:9px; }
+ .breadcrumb .ui-icon { width:17px; height:17px; flex-basis:17px; }
+ .app-main .topbar>.badge { font-size:11px; padding:8px 11px; }
+ .dashboard-content { padding:20px 15px 28px; }
+ .dashboard-hero { min-height:210px; padding:23px; gap:22px; align-items:flex-start; margin-bottom:20px; border-radius:17px; }
+ .dashboard-hero .eyebrow { font-size:8px; letter-spacing:2px; margin-left:0; }
+ .dashboard-hero h1 { font-size:34px; gap:10px; letter-spacing:-1px; margin-top:12px; }
+ .dashboard-hero h1::before { width:5px; flex-basis:5px; height:28px; }
+ .dashboard-hero p { font-size:12px; margin-left:15px; }
+ .dashboard-hero .register-button { padding:12px 16px; font-size:12px; gap:10px; margin-left:15px; }
+ .dashboard-hero .register-button .ui-icon { width:20px; height:20px; flex-basis:20px; }
+ .hero-dots { right:4%; width:95px; }
+ .dashboard-stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:20px; }
+ .dashboard-stats .metric-card { padding:17px 13px 15px; gap:11px; min-height:164px; flex-direction:column; border-radius:14px; }
+ .metric-icon { width:41px; height:41px; flex-basis:41px; border-radius:12px; }
+ .metric-icon .ui-icon { width:25px; height:25px; }
+ .metric-content { padding:0; }
+ .metric-label { font-size:12px; }
+ .dashboard-stats .metric-content strong { font-size:32px; margin:6px 0; }
+ .dashboard-stats .metric-content small { font-size:10px; line-height:1.45; }
+ .dashboard-panels { grid-template-columns:minmax(0,1fr); gap:20px; }
+ .dashboard-panels>.card { padding:18px 17px 17px; border-radius:16px; }
+ .dashboard-panels .card-heading { gap:7px; min-height:44px; padding-bottom:14px; margin-bottom:7px; }
+ .dashboard-panels .card-heading h2 { font-size:17px; gap:9px; letter-spacing:-.4px; }
+ .dashboard-panels .card-heading h2 .ui-icon { width:23px; height:23px; flex-basis:23px; }
+ .dashboard-panels .card-heading .badge { padding:7px 10px; font-size:10px; }
+ .academic-overview [data-overview-year] { font-size:10px; padding:7px; max-width:105px; }
+ .strand-row { grid-template-columns:73px minmax(0,1fr) 64px; gap:10px; min-height:50px; }
+ .strand-name { font-size:12px; gap:8px; }
+ .strand-name i { width:9px; height:9px; flex-basis:9px; }
+ .strand-count { font-size:12px; }.strand-count small { font-size:10px; }
+ .strand-row meter,.strand-row meter::-webkit-meter-bar { height:11px; }
+ .overview-row { grid-template-columns:36px minmax(0,1fr) auto; gap:8px; padding-right:10px; font-size:11px; min-height:47px; border-radius:12px; }
+ .overview-icon { width:35px; height:35px; border-radius:10px; }
+ .overview-icon .ui-icon { width:20px; height:20px; }
+ .overview-row strong { font-size:22px; }
+}
+@media print {
+ .app-main { background:#fff; margin:0; }
+ .premium-sidebar,.app-main .topbar { display:none!important; }
+ .dashboard-stats .metric-card,.dashboard-panels>.card { background:#fff; box-shadow:none; }
+}

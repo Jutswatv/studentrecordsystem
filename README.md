@@ -110,3 +110,8 @@ Browser audit events and report references are editable by device users with dev
 ### Browser sidebar navigation
 
 The original school branding is retained. Browser tools are now separated into Dashboard, Student Records, Enrollment, Curriculum & Subjects, Grade Management, Performance Analytics, Academic Interventions, Report Cards, School Years & Sections, Teachers & Advisers, Record Verification, Activity Logs, Reports & Exports, and System Settings. There is no Academic workspace sidebar entry. Old `#academic` bookmarks remain compatible. Local members see the sections available to their role.
+
+
+### Dashboard styling
+
+The browser dashboard follows the supplied premium interface reference: a teal wave hero, gold registration action, four live metric cards, strand distribution with counts/percentages, and a school-year filter for academic overview. The school name, logo, all sidebar modules and browser-local data remain intact. Decorative visuals use CSS and inline SVG, with no external image or font requests. Dashboard styles are maintained in `browser/dashboard.css` and included by `build-browser.php`.

@@ -59,13 +59,23 @@ async function run() {
   await open('academic?enrollment='+encodeURIComponent(eid));await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(__dirname,'../.artifacts/academic-browser-mobile.png'),fullPage:true});
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Mobile page must not overflow horizontally');
   const sidebarLabels=['Dashboard','Student Records','Enrollment','Curriculum & Subjects','Grade Management','Performance Analytics','Academic Interventions','Report Cards','School Years & Sections','Teachers & Advisers','Record Verification','Activity Logs','Reports & Exports','System Settings'];
-  assert.deepEqual(await page.locator('.sidebar nav a').allTextContents().then(labels=>labels.map(label=>label.slice(1).trim())),sidebarLabels);
+  assert.deepEqual(await page.locator('.sidebar nav a').allTextContents().then(labels=>labels.map(label=>label.trim())),sidebarLabels);
   assert.equal(await page.locator('.sidebar nav a').filter({hasText:'Academic workspace'}).count(),0);
   assert((await page.locator('.sidebar .school-name').textContent()).includes('Libertad National Vocational School'),'Original branding must stay unchanged');
   const modules=[['enrollment','Enrollment','enroll'],['curriculum','Curriculum & Subjects','curriculum'],['grades','Grade Management','grade'],['analytics','Performance Analytics',null],['interventions','Academic Interventions','intervention'],['report-cards','Report Cards','issue'],['school-years','School Years & Sections',null],['teachers','Teachers & Advisers','member'],['verification','Record Verification','verify'],['logs','Activity Logs',null],['reports','Reports & Exports','import'],['settings','System Settings',null]];
-  for(const [route,title,kind] of modules){await open(route+'?enrollment='+encodeURIComponent(eid));assert.equal(await page.locator('.page-heading h1').textContent(),title);assert.equal(await page.locator('.sidebar nav a[aria-current="page"]').textContent().then(t=>t.slice(1).trim()),title);if(kind)assert.equal(await page.locator(`form[data-form="academic-${kind}"]`).count(),1);if(route!=='curriculum')assert.equal(await page.locator('form[data-form="academic-curriculum"]').count(),0);}
-  await page.setViewportSize({width:1440,height:1000});await open('dashboard');await page.screenshot({path:path.join(__dirname,'../.artifacts/sidebar-desktop.png'),fullPage:true});
-  await page.setViewportSize({width:390,height:844});await open('grades?enrollment='+encodeURIComponent(eid));await page.screenshot({path:path.join(__dirname,'../.artifacts/sidebar-mobile.png'),fullPage:true});
+  for(const [route,title,kind] of modules){await open(route+'?enrollment='+encodeURIComponent(eid));assert.equal(await page.locator('.page-heading h1').textContent(),title);assert.equal(await page.locator('.sidebar nav a[aria-current="page"]').textContent().then(t=>t.trim()),title);if(kind)assert.equal(await page.locator(`form[data-form="academic-${kind}"]`).count(),1);if(route!=='curriculum')assert.equal(await page.locator('form[data-form="academic-curriculum"]').count(),0);}
+  await page.setViewportSize({width:1672,height:941});await open('dashboard');
+  assert.equal(await page.locator('.metric-card').count(),4);
+  assert.equal(await page.locator('.metric-card strong').first().textContent(),'1');
+  assert.equal(await page.locator('.metric-card strong').nth(2).textContent(),'2');
+  assert.equal(await page.locator('.metric-card strong').nth(3).textContent(),'82.00');
+  assert.equal(await page.locator('.strand-0 meter').getAttribute('value'),'1');
+  assert.equal((await page.locator('.strand-0 .strand-count').textContent()).trim(),'1 (100%)');
+  await page.locator('[data-overview-year]').selectOption('2026-2027');
+  assert.equal(await page.locator('.overview-row strong').first().textContent(),'1');
+  await page.locator('[data-overview-year]').selectOption('');
+  await page.screenshot({path:path.join(__dirname,'../.artifacts/sidebar-desktop.png'),fullPage:true});
+  await page.setViewportSize({width:390,height:844});await open('dashboard');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Reference dashboard must fit mobile');await page.screenshot({path:path.join(__dirname,'../.artifacts/dashboard-mobile.png'),fullPage:true});await open('grades?enrollment='+encodeURIComponent(eid));await page.screenshot({path:path.join(__dirname,'../.artifacts/sidebar-mobile.png'),fullPage:true});
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Expanded sidebar must not overflow the mobile page');
   const legacyContext=await browser.newContext(),legacyPage=await legacyContext.newPage();await legacyPage.goto(url);
   const legacy=structuredClone(saved);delete legacy.academy;legacy.grades[sid]={'Legacy Subject':[74.99,75,80,null]};
