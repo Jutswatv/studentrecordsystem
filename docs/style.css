@@ -268,3 +268,16 @@ input[type=file] { padding:9px; }
 .academic-browser td pre { min-width:200px; max-width:300px; }
 .academic-browser input[type=checkbox] { width:auto; min-height:0; display:inline-block; vertical-align:middle; }
 @media print { .academic-browser .local-report table { min-width:0; } }
+
+/* Keep every module reachable in the expanded sidebar. */
+@media(min-width:701px) {
+ .sidebar { padding-top:24px; padding-bottom:16px; }
+ .sidebar .brand { margin-bottom:24px; flex-shrink:0; }
+ .sidebar .nav-label { margin-bottom:12px; flex-shrink:0; }
+ .sidebar nav { flex:1; min-height:0; overflow-y:auto; padding-right:4px; scrollbar-width:thin; scrollbar-color:#4d758d transparent; }
+ .sidebar nav a { padding:10px 11px; margin-bottom:4px; font-size:12px; gap:9px; }
+ .sidebar nav a span { font-size:17px; flex-shrink:0; }
+ .sidebar-bottom { flex-shrink:0; padding-top:8px; }
+ .sidebar-bottom .admin { margin-top:8px; padding-top:12px; }
+}
+@media(max-width:700px) { .sidebar nav { max-width:100%; } .sidebar nav a { flex-shrink:0; } }

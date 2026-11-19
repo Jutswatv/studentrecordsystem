@@ -7,7 +7,7 @@ Two working editions are included: an online browser-storage application for Git
 Open **https://jutswatv.github.io/studentrecordsystem/** in a normal browser window.
 
 1. Choose **Create account** to register a local account (password: at least 12 characters), or **Login** to use an existing one.
-2. Register permanent student identities, then open **Academic workspace** to configure curriculum subjects and encode enrollment-scoped grades.
+2. Register permanent student identities, then use **Curriculum & Subjects**, **Enrollment** and **Grade Management** for academic records.
 3. Go to **Account & backups** and download a full JSON backup regularly.
 
 The online version starts empty. It supports configurable curricula, enrollment history, performance trends, early support notes, local teacher/adviser/student accounts, correction requests and audit trails, verified enrollment/grade CSV imports, and printable frozen reports with local reference verification. Registration, editing, searching, CSV export, full backups, local password changes and logout confirmation remain available. Students with academic history are retained. It uses HTML, CSS, and JavaScript with localStorage; no external database, tracking, or API is used. Student information is not uploaded to GitHub.
@@ -96,12 +96,17 @@ Legacy dashboard, profile and CSV screens read the original tables and therefore
 Run isolated academic integration checks with `python tests/academic.py`. They use a disposable server/database, never the live records.
 
 
-## Browser Academic Workspace
+## Browser academic tools
 
-Use the sidebar **Academic workspace** or `#academic`. Configure subjects, select an enrollment to encode grades, record support follow-ups, request corrections, and issue a report. Use its reference to retrieve the frozen snapshot in the same workspace. Printing hides all other page sections.
+Use the separate sidebar modules to configure subjects, select an enrollment to encode grades, record support follow-ups, request corrections, and issue a report. Use its reference to retrieve the frozen snapshot in the same workspace. Printing hides all other page sections.
 
 Administrators provision local member accounts and assign teacher subjects or whole enrollments to advisers. Students are linked to one permanent student identity. These accounts work only on that browser/device. A full backup can move the complete workspace; records are never synchronized or uploaded to GitHub.
 
 Enrollment and grade imports accept CSV UTF-8 exported from Excel; direct `.xlsx` uploads are not supported. Exact headers and import IDs appear in the workspace. Existing LRNs must match identity details. All rows validate before one localStorage save, so a failed import saves no rows. Export a full backup before importing.
 
 Browser audit events and report references are editable by device users with developer tools; they do not provide tamper-proof certification. Official grading and school report layout still need school approval.
+
+
+### Browser sidebar navigation
+
+The original school branding is retained. Browser tools are now separated into Dashboard, Student Records, Enrollment, Curriculum & Subjects, Grade Management, Performance Analytics, Academic Interventions, Report Cards, School Years & Sections, Teachers & Advisers, Record Verification, Activity Logs, Reports & Exports, and System Settings. There is no Academic workspace sidebar entry. Old `#academic` bookmarks remain compatible. Local members see the sections available to their role.
