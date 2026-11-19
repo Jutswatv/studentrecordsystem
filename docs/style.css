@@ -458,3 +458,191 @@ input[type=file] { padding:9px; }
  .premium-sidebar,.app-main .topbar { display:none!important; }
  .dashboard-stats .metric-card,.dashboard-panels>.card { background:#fff; box-shadow:none; }
 }
+
+/* Student Records page, matching the supplied records overview reference. */
+.records-content { max-width:1700px; padding:18px 30px 24px; }
+.app-main:has(.records-content) .topbar { height:60px; }
+.records-hero { min-height:140px; padding:25px 36px; margin-bottom:17px; border-radius:18px; background:linear-gradient(105deg,#113d5a,#006071 68%,#009da9); isolation:isolate; }
+.records-hero>div { position:relative; z-index:2; max-width:75%; }
+.records-hero .eyebrow { color:#b9edef; letter-spacing:2px; font-size:10px; }
+.records-hero h1 { font-size:32px; margin:9px 0 5px; line-height:1.2; }
+.records-hero p { color:#e7f8fc; max-width:none; font-size:13px; line-height:1.6; }
+.records-hero::before { content:''; position:absolute; z-index:-1; width:580px; height:100%; right:60px; top:0; background:repeating-linear-gradient(135deg,transparent 0 45px,#26d2d420 45px 65px,transparent 65px 90px); transform:skewX(-15deg); }
+.records-hero::after { width:450px; height:450px; right:-170px; top:-260px; border:60px solid #52e0df16; }
+.records-hero-art { position:absolute; right:15px; bottom:-13px; width:330px; height:174px; object-fit:contain; object-position:center; pointer-events:none; z-index:1; }
+.records-summary { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:17px; margin-bottom:20px; }
+.record-metric { --record-color:#008b94; --record-tint:#e0f6f5; --record-wave:#9ae6e6; position:relative; overflow:hidden; isolation:isolate; min-height:115px; margin:0; padding:18px 15px; display:flex; align-items:flex-start; gap:16px; border:1px solid #b4dfe9; border-radius:16px; background:linear-gradient(130deg,#fff,#edf9fc); box-shadow:0 6px 12px #2b6f9012; }
+.record-metric.tone-blue { --record-color:#0875ff; --record-tint:#dceeff; --record-wave:#8acfff; border-color:#acd5f9; background:linear-gradient(130deg,#fff,#eef7ff); }
+.record-metric.tone-rose { --record-color:#ed1b72; --record-tint:#fde4ef; --record-wave:#f6a6c7; border-color:#f3d2e2; background:linear-gradient(130deg,#fff,#fff5fa); }
+.record-metric.tone-purple { --record-color:#7929e9; --record-tint:#eee5ff; --record-wave:#d1b6fb; border-color:#d5c5fc; background:linear-gradient(130deg,#fff,#f6f2ff); }
+.record-metric.tone-amber { --record-color:#dc9900; --record-tint:#fff2d3; --record-wave:#ffe095; border-color:#efd9a7; background:linear-gradient(130deg,#fff,#fffbef); }
+.record-metric-icon { display:grid; place-items:center; width:55px; height:58px; flex:0 0 55px; color:var(--record-color); background:var(--record-tint); border-radius:16px; }
+.record-metric-icon .ui-icon { width:32px; height:32px; stroke-width:2; }
+.record-metric>div { position:relative; z-index:1; }
+.record-metric>div>span { display:block; color:#254a69; font-size:12px; line-height:1.3; font-weight:650; }
+.record-metric strong { display:block; color:#102c4e; font-size:31px; line-height:1.1; margin:5px 0 6px; font-weight:750; }
+.record-metric small { color:#46668a; font-size:11px; margin:0; line-height:1.3; }
+.record-spark { position:absolute; bottom:-1px; right:-5px; width:53%; height:56%; fill:var(--record-wave); opacity:.45; z-index:-1; }
+.records-toolbar { display:flex; gap:12px; align-items:center; padding:13px 14px; border-radius:18px; background:#ffffffec; margin-bottom:18px; box-shadow:0 5px 18px #2f6f8c07; }
+.records-toolbar label { margin:0; font-weight:400; }
+.records-search { position:relative; min-width:170px; flex:1.8; }
+.records-search>.ui-icon { position:absolute; left:13px; top:12px; width:18px; height:18px; color:#517795; }
+.records-search input { width:100%; padding:11px 12px 11px 40px; font-size:12px; background:#fff; border:1px solid #c4d4e4; min-height:42px; box-shadow:inset 0 1px 2px #324b6b08; }
+.records-search input::placeholder { color:#5d7799; opacity:1; }
+.records-select { position:relative; display:flex; flex-direction:row; align-items:center; gap:10px; padding:4px 11px; border:1px solid #cdddea; border-radius:10px; background:linear-gradient(120deg,#fff,#f4f9ff); flex:.85; min-width:135px; }
+.records-select>.ui-icon { width:20px; height:20px; color:#007080; flex-basis:20px; }
+.records-select>span { min-width:0; flex:1; }
+.records-select small { display:block; margin:0; font-size:10px; font-weight:400; color:#44617d; line-height:1.1; }
+.records-select select { background:transparent; box-shadow:none; padding:2px 17px 0 0; border:0; min-height:22px; font-size:12px; color:#0e2e50; font-weight:550; border-radius:0; cursor:pointer; }
+.records-toolbar .button { display:flex; align-items:center; justify-content:center; gap:8px; padding:11px 15px; min-height:42px; font-size:12px; border-radius:10px; }
+.records-toolbar .button .ui-icon { width:17px; height:17px; flex-basis:17px; }
+.records-reset { background:linear-gradient(#f1f9fb,#dcebf2); color:#00617b; border-color:#b5d1de; }
+.records-add { background:linear-gradient(115deg,#009aab,#006779); border-color:#19adba; color:white; white-space:nowrap; }
+.records-apply { display:none; }
+.records-list { padding:0 13px 12px; margin-bottom:18px; border-radius:20px; border:1px solid #dfeaf3; background:#ffffffed; box-shadow:0 6px 14px #2e618812; overflow:hidden; }
+.records-list-heading { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:11px 4px 12px; border-bottom:1px solid #e1eaf3; margin-bottom:9px; }
+.records-title { display:flex; align-items:center; gap:12px; min-width:0; }
+.records-title h2 { margin:0 0 3px; color:#102e4c; font-size:17px; font-weight:750; letter-spacing:-.25px; }
+.records-title p { margin:0; font-size:11px; color:#5a7697; line-height:1.5; }
+.record-title-icon { display:grid; place-items:center; width:40px; height:40px; flex:0 0 40px; border-radius:50%; color:#007786; background:#e1f5f5; }
+.record-title-icon .ui-icon { width:24px; height:24px; }
+.records-table-tools { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+.records-table-tools .button { padding:9px 12px; min-height:35px; display:flex; align-items:center; gap:8px; font-size:10px; color:#17293b; background:linear-gradient(#fff,#f8fbff); border-color:#d8e2ed; border-radius:10px; box-shadow:0 3px 7px #37516a0a; }
+.records-table-tools .button .ui-icon { width:16px; height:16px; flex-basis:16px; }
+.records-table-wrap { border-radius:12px; max-width:100%; overflow-x:auto; border:1px solid #e1eaf3; }
+.records-table { min-width:1120px; table-layout:auto; font-size:12px; }
+.records-table thead { background:linear-gradient(100deg,#006777,#005363); }
+.records-table th { background:transparent; color:#fff; text-transform:none; font-size:11px; font-weight:650; letter-spacing:0; padding:11px 9px; white-space:nowrap; }
+.records-table td { padding:10px 9px; border-color:#e6edf5; color:#193f62; white-space:nowrap; }
+.records-table tbody tr { background:linear-gradient(100deg,#fff,#f7fbff); }
+.records-table tbody tr:hover { background:#effbfc; }
+.records-table .record-check { width:42px; text-align:center; }
+.records-table input[type=checkbox] { appearance:auto; display:inline-block; width:15px; height:15px; min-height:0; margin:0; padding:0; border:1px solid #b2c6d7; accent-color:#008a98; cursor:pointer; vertical-align:middle; }
+.record-person { display:flex; align-items:center; gap:10px; }
+.record-person b { color:#173456; font-size:11px; }
+.record-avatar { display:grid; place-items:center; width:36px; height:36px; flex:0 0 36px; background:linear-gradient(120deg,#d6f2f0,#edfafa); color:#007b86; border-radius:50%; }
+.record-avatar .ui-icon { width:22px; height:22px; }
+.record-sex,.record-strand,.record-average,.record-status { display:inline-flex; align-items:center; justify-content:center; gap:6px; border-radius:20px; padding:4px 10px; line-height:1.25; font-size:10px; font-weight:600; }
+.sex-male { background:#d9edff; color:#0768ef; }.sex-female { background:#ffe1ee; color:#c62271; }
+.record-strand { color:#007c87; background:#ddf5f4; min-width:53px; }
+.record-strand.strand-1 { color:#7634c6; background:#f0e6ff; }.record-strand.strand-2 { color:#a77200; background:#fff1cf; }.record-strand.strand-3 { color:#176bd4; background:#e3efff; }.record-strand.strand-4 { color:#d63274; background:#ffe6ef; }
+.record-average { color:#14692d; background:#d8f4df; font-size:12px; padding:4px 13px; }
+.record-average.average-missing { color:#697c92; background:#edf2f7; font-size:10px; }
+.record-average.average-low { color:#b94140; background:#ffebe8; }
+.record-status { color:#17733c; background:#e3f7eb; }
+.record-status .ui-icon { width:14px; height:14px; flex-basis:14px; stroke-width:2.5; }
+.record-actions { display:flex; align-items:center; gap:9px; }
+.record-action { width:34px; height:34px; border:1px solid #9bdde1; background:#e5f8f7; color:#008c98; border-radius:10px; display:grid; place-items:center; padding:7px; }
+.record-action .ui-icon { width:18px; height:18px; }
+.record-action:hover { background:#d2f1ef; text-decoration:none; }
+.edit-action { color:#0875f0; background:#e9f3ff; border-color:#b8d6ff; }.edit-action:hover { background:#d7eafe; }
+.delete-action { color:#f33f4d; background:#fff5f5; border-color:#ffb4ba; }.delete-action:hover { background:#ffe3e5; }
+.records-list-footer { padding:15px 5px 1px; display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:12px; color:#46617f; }
+.records-pagination { display:flex; align-items:center; gap:10px; }
+.records-pagination button,.records-pagination>span { width:31px; height:30px; display:grid; place-items:center; border:1px solid #d5e1ed; background:#fff; border-radius:7px; color:#235278; font-size:20px; line-height:1; }
+.records-pagination>span { font-size:12px; color:#fff; background:linear-gradient(130deg,#147bb1,#104d80); border-color:#176e9d; }
+.records-pagination button:disabled { opacity:.4; cursor:default; }
+.records-bottom { display:grid; grid-template-columns:.95fr 1.08fr; gap:18px; }
+.records-bottom>.card { min-width:0; margin:0; border:1px solid #dce7f0; border-radius:19px; background:linear-gradient(135deg,#fff,#f5fbff); box-shadow:0 8px 15px #2c668412; }
+.records-quick { padding:17px 24px 20px; }
+.quick-bolt { display:grid; place-items:center; color:#f9ba30; width:28px; flex:0 0 28px; }
+.quick-bolt .ui-icon { fill:#ffd258; stroke:#ecaa14; }
+.records-quick-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:20px; }
+.quick-tile { --quick:#009aab; --quick-bg:#eefafa; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; min-height:91px; padding:14px 6px; border:1px solid #c3e9ec; border-radius:14px; color:#113559; background:var(--quick-bg); font-size:11px; font-weight:550; text-align:center; }
+.quick-tile .ui-icon { color:var(--quick); width:25px; height:25px; }
+.quick-tile.tone-purple { --quick:#7935ed; --quick-bg:#f6f2ff; border-color:#e0d4ff; }.quick-tile.tone-blue { --quick:#0877ff; --quick-bg:#f0f6ff; border-color:#d5e7ff; }.quick-tile.tone-amber { --quick:#e1a000; --quick-bg:#fffaf0; border-color:#ffe5a9; }
+.quick-tile:hover { background:#e5f3f6; text-decoration:none; box-shadow:0 3px 9px #1a5d7912; }
+.records-distribution { padding:17px 19px 14px; }
+.records-distribution .card-heading { margin-bottom:3px; padding-bottom:13px; gap:10px; }
+.records-distribution .card-heading h2 { display:flex; align-items:center; gap:12px; font-size:16px; font-weight:750; letter-spacing:-.3px; color:#193b60; }
+.records-distribution .card-heading h2 .ui-icon { color:#008a97; width:22px; height:22px; flex-basis:22px; }
+.records-distribution .badge { white-space:nowrap; font-size:11px; }
+.records-distribution .strand-row { min-height:25px; grid-template-columns:76px minmax(40px,1fr) 85px; gap:12px; border:0; }
+.records-distribution .strand-name { font-size:11px; gap:9px; }
+.records-distribution .strand-name i { width:9px; height:9px; flex-basis:9px; border-radius:4px; }
+.records-distribution .strand-row meter,.records-distribution .strand-row meter::-webkit-meter-bar { height:10px; }
+.records-distribution .strand-count,.records-distribution .strand-count small { font-size:11px; }
+.records-print-only { display:none; }
+.records-content>footer { margin-top:18px; }
+@media(min-width:1600px) {
+ .records-content { padding:18px 29px 22px; }
+ .records-hero { min-height:140px; }
+ .records-table { width:100%; }
+ .records-table th { padding:11px 10px; font-size:12px; }
+ .records-table td { padding:11px 10px; font-size:12px; }
+ .record-person b { font-size:12px; }
+ .records-list-heading { padding-block:13px; }
+ .records-title h2 { font-size:18px; }
+ .records-title p { font-size:12px; }
+ .records-table-tools .button { font-size:11px; }
+ .records-quick-grid { min-height:91px; }
+ .quick-tile { font-size:12px; }
+}
+@media(min-width:701px) and (max-width:1350px) {
+ .records-content { padding:22px; }
+ .records-summary { grid-template-columns:repeat(3,minmax(0,1fr)); gap:13px; }
+ .records-toolbar { flex-wrap:wrap; }
+ .records-search { flex:1 1 100%; }
+ .records-select { flex:1; }
+ .records-bottom { grid-template-columns:1fr; }
+ .records-hero>div { max-width:70%; }
+ .records-hero-art { width:240px; right:-5px; }
+ .records-hero h1 { font-size:28px; }
+ .records-hero p { font-size:12px; }
+ .records-list-heading { flex-wrap:wrap; }
+}
+@media(max-width:700px) {
+ .app-main:has(.records-content) .topbar { height:58px; }
+ .records-content { padding:20px 15px 24px; }
+ .records-hero { padding:23px; min-height:176px; margin-bottom:18px; }
+ .records-hero>div { max-width:100%; }
+ .records-hero .eyebrow { font-size:8px; letter-spacing:1.6px; }
+ .records-hero h1 { font-size:29px; margin:11px 0 8px; }
+ .records-hero p { font-size:12px; line-height:1.7; padding-right:45px; }
+ .records-hero-art { width:130px; height:100px; right:-15px; bottom:-5px; opacity:.28; z-index:0; }
+ .records-summary { grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; margin-bottom:18px; }
+ .record-metric { min-height:107px; padding:15px 12px; gap:10px; border-radius:14px; }
+ .record-metric:last-child { grid-column:1/-1; }
+ .record-metric-icon { width:40px; height:43px; flex-basis:40px; border-radius:12px; }
+ .record-metric-icon .ui-icon { width:26px; height:26px; }
+ .record-metric>div>span { font-size:11px; }
+ .record-metric strong { font-size:28px; }
+ .record-metric small { font-size:10px; }
+ .records-toolbar { flex-wrap:wrap; padding:13px; gap:11px; }
+ .records-search { flex:1 1 100%; }
+ .records-select { flex:1 1 calc(50% - 11px); min-width:100px; }
+ .records-select>.ui-icon { width:17px; height:17px; flex-basis:17px; }
+ .records-select select { font-size:11px; }
+ .records-toolbar .button { flex:1; font-size:11px; padding:10px; }
+ .records-toolbar .records-add { flex:1 1 100%; }
+ .records-list { padding:0 11px 13px; border-radius:17px; }
+ .records-list-heading { align-items:flex-start; flex-direction:column; gap:12px; padding:15px 0 12px; }
+ .records-title h2 { font-size:16px; }
+ .records-title p { font-size:10px; }
+ .records-table-tools { width:100%; gap:7px; justify-content:space-between; }
+ .records-table-tools .button { padding:8px; font-size:9px; gap:5px; border-radius:8px; }
+ .records-table-tools .button .ui-icon { width:14px; height:14px; flex-basis:14px; }
+ .records-list-footer { font-size:10px; padding-inline:0; flex-wrap:wrap; }
+ .records-pagination { gap:7px; }.records-pagination button,.records-pagination>span { width:29px; height:28px; }
+ .records-bottom { grid-template-columns:minmax(0,1fr); gap:18px; }
+ .records-quick { padding:18px; }
+ .records-quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:17px; }
+ .quick-tile { min-height:84px; font-size:11px; }
+ .records-distribution { padding:18px 15px; }
+ .records-distribution .card-heading { flex-wrap:wrap; gap:10px; }
+ .records-distribution .card-heading h2 { font-size:15px; gap:8px; }
+ .records-distribution .strand-row { min-height:30px; grid-template-columns:65px minmax(0,1fr) 75px; gap:7px; }
+ .records-distribution .strand-count,.records-distribution .strand-count small { font-size:10px; }
+}
+@media print {
+ .records-content>* { display:none!important; }
+ .records-content>.records-print-only { display:block!important; }
+ .records-print-only { font-size:10px; }
+ .records-print-only h1 { font-size:20px; }
+ .records-print-only .records-table { min-width:0; width:100%; font-size:9px; }
+ .records-print-only .records-table th,.records-print-only .records-table td { font-size:9px; white-space:normal; padding:6px 4px; color:#111; background:#fff; }
+ .records-print-only .record-person b { font-size:9px; }
+ .records-print-only .record-avatar,.records-print-only .record-status .ui-icon { display:none; }
+ .records-print-only .record-sex,.records-print-only .record-strand,.records-print-only .record-average,.records-print-only .record-status { background:none; color:#111; padding:0; font-size:9px; }
+ .records-print-only .table-wrap { overflow:visible; border:0; }
+}

@@ -115,3 +115,12 @@ The original school branding is retained. Browser tools are now separated into D
 ### Dashboard styling
 
 The browser dashboard follows the supplied premium interface reference: a teal wave hero, gold registration action, four live metric cards, strand distribution with counts/percentages, and a school-year filter for academic overview. The school name, logo, all sidebar modules and browser-local data remain intact. Decorative visuals use CSS and inline SVG, with no external image or font requests. Dashboard styles are maintained in `browser/dashboard.css` and included by `build-browser.php`.
+
+
+### Student Records overview
+
+The browser Student Records page matches the supplied overview reference, using five live summary cards, enrollment-aware year/strand/section filters, debounced name/LRN/ID search, a ten-row paginated list, selected/filtered CSV export, a printable list, quick actions, and strand distribution. A student's row uses the most recent enrollment matching the filters; its average requires all subjects in that enrollment's curriculum. Existing personal records and academic history are retained.
+
+Use the row checkboxes to export or print selected students. With no selection, export/print includes all filtered results across pages. The School Year filter can show historical enrollment details and their grades. Changing strand/year clears an incompatible section filter. Import shortcuts open the existing verified CSV import module; backups include the full academic workspace.
+
+Styles: `browser/records.css`. Banner artwork and generation prompt: `browser/records-art.md`. Run the isolated UI checks with `node tests/browser-records.cjs` in addition to `node tests/browser.cjs`.

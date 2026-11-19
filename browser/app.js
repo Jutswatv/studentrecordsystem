@@ -11,6 +11,9 @@
   let filters = {search:'', strand:'', year:''};
   let busy = false;
   let overviewYear = '';
+  let recordsPage=1;
+  const recordsSelection=new Set();
+  let searchTimer;
   const h = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const blank = () => ({version:1, admin:null, students:[], grades:{}});
   const num = value => value === null ? '—' : Number(value).toFixed(2);
@@ -88,9 +91,13 @@
   function sorted(students) {
     return [...students].sort((a,b)=>fullName(a).localeCompare(fullName(b)));
   }
+  function recordEnrollment(data,s) {
+    return data.academy.enrollments.filter(e=>e.student_id===s.id&&(!filters.year||e.school_year===filters.year)&&(!filters.strand||e.strand===filters.strand)&&(!filters.section||e.section===filters.section)).sort((a,b)=>b.school_year.localeCompare(a.school_year)||b.grade_level-a.grade_level||b.semester-a.semester||b.created_at.localeCompare(a.created_at))[0];
+  }
   function filtered(data) {
-    const term=filters.search.toLowerCase().trim();
-    return sorted(data.students.filter(s => (!term || `${s.first_name} ${s.last_name} ${s.lrn} ${s.section}`.toLowerCase().includes(term)) && (!filters.strand || s.strand===filters.strand) && (!filters.year || s.school_year===filters.year)));
+    const term=filters.search.toLowerCase().trim(),rows=[];
+    for(const s of data.students) {const e=recordEnrollment(data,s);if(!e)continue;const row={...s,strand:e.strand,section:e.section,school_year:e.school_year,_enrollment:e.id};if(!term||`${s.first_name} ${s.last_name} ${s.middle_name} ${s.lrn} ${s.id} ${e.section}`.toLowerCase().includes(term))rows.push(row);}
+    return sorted(rows);
   }
   function input(label, name, value='', type='text', required=false, extra='') {
     if(type==='password') {
@@ -131,6 +138,17 @@
       graduation:'<path d="m2 8 10-5 10 5-10 5Zm4 3v6c4 3 8 3 12 0v-6m4-3v9"/>',
       check:'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
       cross:'<circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/>',
+      search:'<circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/>',
+      male:'<circle cx="9" cy="15" r="6"/><path d="m13 11 8-8m-6 0h6v6"/>',
+      female:'<circle cx="12" cy="8" r="6"/><path d="M12 14v8m-4-4h8"/>',
+      reset:'<path d="M4 4v6h6M4 10a8 8 0 1 1 0 6"/>',
+      upload:'<path d="M12 16V3m-5 5 5-5 5 5M3 16v5h18v-5"/>',
+      print:'<path d="M6 8V2h12v6M6 18H3V8h18v10h-3M6 14h12v8H6Zm11-3h1"/>',
+      eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+      edit:'<path d="m15 3 6 6M3 21l5-1L21 7a3 3 0 0 0-4-4L4 16Z"/>',
+      delete:'<path d="M3 6h18M9 6V2h6v4M5 6l1 16h12l1-16M10 10v8m4-8v8"/>',
+      bolt:'<path d="M13 2 4 14h7l-1 8 10-13h-7Z"/>',
+      database:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 4 18 4 18 0V5M3 12c0 4 18 4 18 0"/>',
       logout:'<path d="M10 3H3v18h7m4-15 6 6-6 6m-7-6h13"/>'
     };
     return `<svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]||paths.dashboard}</svg>`;
@@ -140,7 +158,7 @@
     const iconForNav=key=>icon(key);
     const user=identity(data), nav=allNav.filter(([key])=>user.role==='admin'||['grades','analytics','interventions','report-cards','school-years','verification'].includes(key));
     document.title=title+' | LNVS Student Records';
-    app.innerHTML=`<aside class="sidebar premium-sidebar"><a class="brand" href="#dashboard">${schoolBrand()}</a><span class="nav-label">LOCAL WORKSPACE</span><nav>${nav.map(([key,icon,label])=>`<a class="${active===key?'active':''}" ${active===key?'aria-current="page"':''} href="#${key}"><span class="nav-icon">${iconForNav(key)}</span>${label}</a>`).join('')}</nav><div class="sidebar-bottom"><button class="logout" data-action="logout">${icon('logout')} Sign out</button><div class="admin"><b>${h(user.username.slice(0,1).toUpperCase())}</b><span>${h(user.username)}<small>${h(user.role==='admin'?'Local administrator':user.role)}</small></span></div></div></aside><main class="main app-main"><header class="topbar"><span class="breadcrumb">${icon('home')}<span>Browser workspace / <b>${h(title)}</b></span></span><span class="badge">Grade 12</span></header><div class="content ${active==='dashboard'?'dashboard-content':''}"><div class="page-heading ${active==='dashboard'?'dashboard-hero':''}"><div><span class="eyebrow">STUDENT RECORD MANAGEMENT</span><h1>${h(title)}</h1><p>Libertad National Vocational School &middot; Your local Grade 12 workspace</p></div>${action}${active==='dashboard'?'<span class="hero-dots" aria-hidden="true"></span>':''}</div>${body}<footer>LNVS Gradebook <span>Browser storage &middot; No server database</span></footer></div></main>`;
+    app.innerHTML=`<aside class="sidebar premium-sidebar"><a class="brand" href="#dashboard">${schoolBrand()}</a><span class="nav-label">LOCAL WORKSPACE</span><nav>${nav.map(([key,icon,label])=>`<a class="${active===key?'active':''}" ${active===key?'aria-current="page"':''} href="#${key}"><span class="nav-icon">${iconForNav(key)}</span>${label}</a>`).join('')}</nav><div class="sidebar-bottom"><button class="logout" data-action="logout">${icon('logout')} Sign out</button><div class="admin"><b>${h(user.username.slice(0,1).toUpperCase())}</b><span>${h(user.username)}<small>${h(user.role==='admin'?'Local administrator':user.role)}</small></span></div></div></aside><main class="main app-main"><header class="topbar"><span class="breadcrumb">${icon('home')}<span>Browser workspace / <b>${h(title)}</b></span></span><span class="badge">Grade 12</span></header><div class="content ${active==='dashboard'?'dashboard-content':active==='students'?'records-content':''}"><div class="page-heading ${active==='dashboard'?'dashboard-hero':active==='students'?'records-hero':''}"><div><span class="eyebrow">STUDENT RECORD MANAGEMENT</span><h1>${h(title)}</h1><p>${active==='students'?'Manage, view, update, and organize Grade 12 student information and academic records.':'Libertad National Vocational School &middot; Your local Grade 12 workspace'}</p></div>${active==='students'?'<img class="records-hero-art" src="assets/student-records-hero.png" alt="" aria-hidden="true">':action}${active==='dashboard'?'<span class="hero-dots" aria-hidden="true"></span>':''}</div>${body}<footer>LNVS Gradebook <span>Browser storage &middot; No server database</span></footer></div></main>`;
   }
   function table(students,grades=false) {
     if (!students.length) return '<div class="empty"><h3>No students found</h3><p>Register a student or adjust your filters.</p><a class="button secondary" href="#register">Register a student</a></div>';
@@ -157,6 +175,21 @@
     const averages=academicRows.map(r=>r.average).filter(v=>v!==null),passing=averages.filter(v=>v>=75).length;
     const years=[...new Set(data.academy.enrollments.map(e=>e.school_year))].sort().reverse();
     return `<div class="two-cols dashboard-panels"><section class="card distribution-card"><div class="card-heading"><h2>${icon('grades')}Strand distribution</h2><span class="badge">${data.students.length} ${data.students.length===1?'student':'students'}</span></div><div class="strand-rows">${STRANDS.map((strand,i)=>{const count=data.students.filter(s=>s.strand===strand).length,percent=data.students.length?Math.round(count/data.students.length*100):0;return `<div class="strand-row strand-${i}"><span class="strand-name"><i aria-hidden="true"></i>${h(strand)}</span><meter min="0" max="${Math.max(1,data.students.length)}" value="${count}" aria-label="${h(strand)} enrollment: ${count} students, ${percent}%">${count}</meter><span class="strand-count">${count} <small>(${percent}%)</small></span></div>`;}).join('')}</div></section><section class="card academic-overview"><div class="card-heading"><h2>${icon('school-years')}Academic overview</h2><select data-overview-year aria-label="Academic overview school year"><option value="">All years</option>${years.map(year=>`<option value="${h(year)}" ${year===overviewYear?'selected':''}>${h(year)}</option>`).join('')}</select></div><div class="overview-rows">${[['Completed subject grades',averages.length,'graduation','teal'],['Passing subjects (≥ 75)',passing,'check','teal'],['Below passing (< 75)',averages.length-passing,'cross','rose'],['Incomplete curriculum subjects',academicRows.length-averages.length,'report-cards','blue']].map(([label,value,symbol,tone])=>`<div class="overview-row"><span class="overview-icon tone-${tone}">${icon(symbol)}</span><span>${h(label)}</span><strong>${value}</strong></div>`).join('')}</div><a class="text-link overview-link" href="#analytics">View performance analytics ${icon('analytics')}</a></section></div>`;
+  }
+  function recordAverage(data,s) {
+    const e=data.academy.enrollments.find(e=>e.id===s._enrollment),rs=e?academic.rows(data,{role:'admin'},e):[];
+    return rs.length&&rs.every(r=>r.average!==null)?rs.reduce((sum,r)=>sum+r.average,0)/rs.length:null;
+  }
+  function recordsTable(data,rows,printing=false) {
+    return `<div class="table-wrap records-table-wrap"><table class="records-table"><thead><tr>${printing?'':'<th class="record-check"><input type="checkbox" data-record-select-all aria-label="Select all students on this page" '+(rows.length&&rows.every(s=>recordsSelection.has(s.id))?'checked':'')+'></th>'}<th>LRN</th><th>Student Name</th><th>Sex</th><th>Strand</th><th>Section</th><th>School Year</th><th>General Average</th><th>Status</th>${printing?'':'<th>Actions</th>'}</tr></thead><tbody>${rows.map(s=>{const avg=recordAverage(data,s);return `<tr>${printing?'':`<td class="record-check"><input type="checkbox" data-record-select="${h(s.id)}" aria-label="Select ${h(fullName(s))}" ${recordsSelection.has(s.id)?'checked':''}></td>`}<td class="lrn-cell">${h(s.lrn)}</td><td><div class="record-person"><span class="record-avatar" aria-hidden="true">${icon('students')}</span><b>${h(fullName(s))}</b></div></td><td><span class="record-sex ${s.sex==='Male'?'sex-male':'sex-female'}">${h(s.sex)}</span></td><td><span class="record-strand strand-${STRANDS.indexOf(s.strand)}">${h(s.strand)}</span></td><td>${h(s.section)}</td><td class="record-year">${h(s.school_year)}</td><td><span class="record-average ${avg===null?'average-missing':avg<75?'average-low':''}">${avg===null?'Incomplete':num(avg)}</span></td><td><span class="record-status">${icon('check')}Enrolled</span></td>${printing?'':`<td><div class="record-actions"><a class="record-action view-action" href="#profile?id=${encodeURIComponent(s.id)}" aria-label="View ${h(fullName(s))}" title="View student">${icon('eye')}</a><a class="record-action edit-action" href="#edit?id=${encodeURIComponent(s.id)}" aria-label="Edit ${h(fullName(s))}" title="Edit student">${icon('edit')}</a><button class="record-action delete-action" data-action="delete" data-id="${h(s.id)}" aria-label="Delete ${h(fullName(s))}" title="Delete student">${icon('delete')}</button></div></td>`}</tr>`;}).join('')||`<tr><td colspan="${printing?8:10}" class="empty"><h3>No students found</h3><p>Try another filter or add a student record.</p></td></tr>`}</tbody></table></div>`;
+  }
+  function studentRecords(data) {
+    const rows=filtered(data),total=rows.length,male=rows.filter(s=>s.sex==='Male').length,female=rows.filter(s=>s.sex==='Female').length;
+    const years=[...new Set(data.academy.enrollments.map(e=>e.school_year))].sort().reverse(),sections=[...new Set(data.academy.enrollments.filter(e=>(!filters.year||e.school_year===filters.year)&&(!filters.strand||e.strand===filters.strand)).map(e=>e.section))].sort();
+    const pages=Math.max(1,Math.ceil(total/10));recordsPage=Math.min(recordsPage,pages);const offset=(recordsPage-1)*10,pageRows=rows.slice(offset,offset+10);
+    const selected=rows.filter(s=>recordsSelection.has(s.id)),printRows=selected.length?selected:rows;
+    const dropdown=(label,key,values,all,symbol)=>`<label class="records-select">${icon(symbol)}<span><small>${h(label)}</small><select name="${key}" aria-label="${h(label)}"><option value="">${h(all)}</option>${values.map(v=>`<option value="${h(v)}" ${filters[key]===v?'selected':''}>${h(v)}</option>`).join('')}</select></span></label>`;
+    return `<div class="records-summary">${[['Total Students',total,filters.search||filters.year||filters.strand||filters.section?'Matching records':'Registered students','students','teal'],['Male Students',male,`${total?Math.round(male/total*100):0}% of total`,'male','blue'],['Female Students',female,`${total?Math.round(female/total*100):0}% of total`,'female','rose'],['Strands',new Set(rows.map(s=>s.strand)).size,'Active strands','school-years','purple'],['Sections',new Set(rows.map(s=>s.section)).size,'Active sections','dashboard','amber']].map(([title,count,help,symbol,tone])=>`<article class="card record-metric tone-${tone}"><span class="record-metric-icon">${icon(symbol)}</span><div><span>${h(title)}</span><strong>${count}</strong><small>${h(help)}</small></div><svg class="record-spark" viewBox="0 0 180 70" aria-hidden="true"><path d="M0 70Q22 43 44 48T85 35T120 26T150 17T180 0V70Z"/></svg></article>`).join('')}</div><form data-form="filter" class="records-toolbar no-print"><label class="records-search">${icon('search')}<input name="search" aria-label="Search students" placeholder="Search student (LRN, name, or ID)..." value="${h(filters.search)}"></label>${dropdown('School Year','year',years,'All School Years','logs')}${dropdown('Strand','strand',STRANDS,'All Strands','school-years')}${dropdown('Section','section',sections,'All Sections','dashboard')}<button class="button secondary records-reset" type="button" data-action="reset-filters">${icon('reset')}Reset</button><a class="button records-add" href="#register">${icon('register')}Add Student</a><button type="submit" class="records-apply">Apply filters</button></form><section class="card records-list"><div class="records-list-heading"><div class="records-title"><span class="record-title-icon">${icon('report-cards')}</span><div><h2>Student Records List</h2><p>View, edit, and manage all Grade 12 student records.</p></div></div><div class="records-table-tools no-print"><a class="button secondary" href="#reports">${icon('upload')}Import (CSV)</a><button class="button secondary" data-action="records-export">${icon('reports')}${selected.length?'Export Selected ('+selected.length+')':'Export (CSV)'}</button><button class="button secondary" data-action="print">${icon('print')}Print List</button></div></div>${recordsTable(data,pageRows)}<div class="records-list-footer no-print"><span role="status">Showing ${total?offset+1:0} to ${Math.min(offset+10,total)} of ${total} ${total===1?'student':'students'}${selected.length?' · '+selected.length+' selected':''}</span><div class="records-pagination" aria-label="Student list pagination"><button data-action="records-page" data-page="${recordsPage-1}" aria-label="Previous page" ${recordsPage===1?'disabled':''}>‹</button><span aria-current="page">${recordsPage}</span><button data-action="records-page" data-page="${recordsPage+1}" aria-label="Next page" ${recordsPage===pages?'disabled':''}>›</button></div></div></section><div class="records-bottom"><section class="card records-quick"><div class="records-title"><span class="quick-bolt">${icon('bolt')}</span><div><h2>Quick Actions</h2><p>Common tasks for student records.</p></div></div><div class="records-quick-grid"><a class="quick-tile tone-teal" href="#register">${icon('register')}<span>Add Student</span></a><a class="quick-tile tone-purple" href="#reports">${icon('upload')}<span>Bulk Import</span></a><a class="quick-tile tone-blue" href="#report-cards">${icon('report-cards')}<span>Generate Report</span></a><button class="quick-tile tone-amber" data-action="backup">${icon('database')}<span>Backup Records</span></button></div></section><section class="card records-distribution"><div class="card-heading"><h2>${icon('grades')}Student Distribution by Strand</h2><span class="badge">Total: ${total}</span></div>${STRANDS.map((strand,i)=>{const count=rows.filter(s=>s.strand===strand).length,pct=total?(count/total*100).toFixed(1):'0.0';return `<div class="strand-row strand-${i}"><span class="strand-name"><i aria-hidden="true"></i>${h(strand)}</span><meter min="0" max="${Math.max(1,total)}" value="${count}" aria-label="${h(strand)}: ${count} students">${count}</meter><span class="strand-count">${count} <small>(${pct}%)</small></span></div>`;}).join('')}</section></div><section class="records-print-only"><h1>Libertad National Vocational School</h1><h2>Student Records List</h2><p>${printRows.length} student records${selected.length?' · Selected records':''}</p>${recordsTable(data,printRows,true)}</section>`;
   }
   function filterForm() {
     return `<form data-form="filter" class="filters"><label class="grow">Search students<input name="search" placeholder="Name, LRN, or section" value="${h(filters.search)}"></label>${select('Strand','strand',STRANDS,filters.strand,'All strands')}${input('School year','year',filters.year,'text',false,'placeholder="2026-2027"')}<button class="button">Apply filters</button><button type="button" class="button secondary" data-action="reset-filters">Reset</button></form>`;
@@ -196,7 +229,7 @@
       const student=data.students.find(s=>s.id===params.get('id'));
       const add='<a class="button register-button" href="#register">'+icon('register')+'Register student</a>';
       if(name==='dashboard') layout(data,'Dashboard','dashboard',stats(data)+insights(data),add);
-      else if(name==='students'||name==='grades') { const rows=filtered(data); layout(data,name==='grades'?'Grades management':'Student records',name,`<section class="card">${filterForm()}<div class="card-heading"><span class="muted">${rows.length} students</span><button class="button secondary" data-action="csv">Export filtered CSV</button></div>${table(rows,name==='grades')}</section>`,add); }
+      else if(name==='students') layout(data,'Student Records','students',studentRecords(data));
       else if(name==='register'||name==='edit') layout(data,name==='edit'?'Edit student':'Student registration','register',name==='edit'&&!student?'<section class="card"><h2>Student not found</h2><a href="#students">Return to records</a></section>':studentForm(student));
       else if(name==='profile'||name==='encode') layout(data,name==='encode'?'Grades management':'Student profile',name==='encode'?'grades':'students',student?profile(data,student,name==='encode'):'<section class="card"><h2>Student not found</h2><a href="#students">Return to records</a></section>');
 
@@ -256,7 +289,16 @@
     if(data.academy) clean.academy=academic.validate(data.academy,clean.students);
     return academic.normalize(clean);
   }
-  app.addEventListener('change',event=>{if(event.target.matches('[data-overview-year]')){overviewYear=event.target.value;render();}});
+  function updateRecordFilters(form) {
+    const fd=new FormData(form);filters={search:String(fd.get('search')||'').trim(),strand:String(fd.get('strand')||''),year:String(fd.get('year')||''),section:String(fd.get('section')||'')};if(filters.section&&!read().academy.enrollments.some(e=>(!filters.year||e.school_year===filters.year)&&(!filters.strand||e.strand===filters.strand)&&e.section===filters.section))filters.section='';recordsPage=1;recordsSelection.clear();render();
+  }
+  app.addEventListener('input',event=>{if(event.target.matches('.records-search input')){clearTimeout(searchTimer);const position=event.target.selectionStart;searchTimer=setTimeout(()=>{if(route().name!=='students')return;const form=app.querySelector('.records-toolbar');if(!form)return;updateRecordFilters(form);const field=app.querySelector('.records-search input');field.focus();field.setSelectionRange(position,position);},220);}});
+  app.addEventListener('change',event=>{
+    if(event.target.matches('[data-overview-year]')){overviewYear=event.target.value;render();}
+    else if(event.target.matches('.records-toolbar select')){clearTimeout(searchTimer);updateRecordFilters(event.target.closest('form'));}
+    else if(event.target.matches('[data-record-select]')){event.target.checked?recordsSelection.add(event.target.dataset.recordSelect):recordsSelection.delete(event.target.dataset.recordSelect);render();}
+    else if(event.target.matches('[data-record-select-all]')){const data=read();if(!logged(data)||identity(data).role!=='admin')return;const rows=filtered(data).slice((recordsPage-1)*10,recordsPage*10);for(const s of rows)event.target.checked?recordsSelection.add(s.id):recordsSelection.delete(s.id);render();}
+  });
   app.addEventListener('submit', async event => {
     const form=event.target.closest('form[data-form]'); if(!form) return;
     event.preventDefault(); if(busy) return;
@@ -274,7 +316,7 @@
         if(store.accounts.some(account=>[account.data.admin,...(account.data.academy?.members||[])].some(m=>m.username.toLowerCase()===username.toLowerCase()))) throw new Error('That username was just registered in another tab. Choose another username or log in.');
         data=blank(); data.admin=admin;
         const id=crypto.randomUUID(); store.accounts.push({id,data}); saveStore(store);
-        sessionStorage.setItem(ACTIVE,id); sessionStorage.setItem(SESSION,admin.hash); overviewYear=''; filters={search:'',strand:'',year:''}; go('dashboard'); render(); await popup('Account created','Your local account is ready with an empty student workspace.'); return;
+        sessionStorage.setItem(ACTIVE,id); sessionStorage.setItem(SESSION,admin.hash); overviewYear=''; recordsPage=1; recordsSelection.clear(); filters={search:'',strand:'',year:'',section:''}; go('dashboard'); render(); await popup('Account created','Your local account is ready with an empty student workspace.'); return;
       }
       if(kind==='login') {
         const username=String(fd.get('username')).trim().toLowerCase();
@@ -283,13 +325,13 @@
         if(!found || await passwordHash(String(fd.get('password')),found.user.salt)!==found.user.hash) throw new Error('Invalid username or password.');
         const latest=readStore().accounts.find(item=>item.id===found.account.id);
         if(!latest||![latest.data.admin,...(latest.data.academy?.members||[])].some(m=>m.hash===found.user.hash&&m.active!==false))throw new Error('This account changed in another tab. Try again.');
-        sessionStorage.setItem(ACTIVE,found.account.id); sessionStorage.setItem(SESSION,found.user.hash); overviewYear=''; filters={search:'',strand:'',year:''}; go(found.user.role?'grades':'dashboard'); render(); await popup('Login successful','Welcome back to your local student workspace.'); return;
+        sessionStorage.setItem(ACTIVE,found.account.id); sessionStorage.setItem(SESSION,found.user.hash); overviewYear=''; recordsPage=1; recordsSelection.clear(); filters={search:'',strand:'',year:'',section:''}; go(found.user.role?'grades':'dashboard'); render(); await popup('Login successful','Welcome back to your local student workspace.'); return;
       }
       if(!logged(data)) throw new Error('Please sign in before making changes.');
       const user=identity(data);
       if(kind.startsWith('academic-')) {const original=localStorage.getItem(KEY);const next=await academic.submit(data,user,kind.slice(9),fd,readStore().accounts);if(localStorage.getItem(KEY)!==original)throw new Error('Another tab changed this workspace. Reload and try again.');write(data);if(next)go(next.replace('academic?report=','report-cards?report='));render();if(kind!=='academic-verify')await popup('Changes saved','Academic records updated on this browser.');return;}
       if(user.role!=='admin') throw new Error('Use your assigned Grade Management page.');
-      if(kind==='filter') { filters={search:String(fd.get('search')).trim(),strand:String(fd.get('strand')),year:String(fd.get('year')).trim()}; render(); return; }
+      if(kind==='filter') {clearTimeout(searchTimer);updateRecordFilters(form);return;}
       if(kind==='student') {
         const id=String(fd.get('id')||''), s={};
         for(const key of FIELDS) s[key]=String(fd.get(key)||'').trim();
@@ -335,8 +377,10 @@
       const data=read(); if(!logged(data)) {render(); return;}
       const action=button.dataset.action;
       if(identity(data).role!=='admin'&&!['logout','print'].includes(action))throw new Error('Administrator access required.');
-      if(action==='logout') { if(!await popup('Sign out?','Are you sure you want to sign out of your local account?','warning',true,'Yes, sign out','No, stay signed in')) return; sessionStorage.removeItem(SESSION); sessionStorage.removeItem(ACTIVE); overviewYear=''; filters={search:'',strand:'',year:''}; go('login'); render(); await popup('Logout successful','You have been signed out. Your saved records remain on this browser.'); }
-      else if(action==='reset-filters') {overviewYear=''; filters={search:'',strand:'',year:''}; render();}
+      if(action==='logout') { if(!await popup('Sign out?','Are you sure you want to sign out of your local account?','warning',true,'Yes, sign out','No, stay signed in')) return; sessionStorage.removeItem(SESSION); sessionStorage.removeItem(ACTIVE); overviewYear=''; recordsPage=1; recordsSelection.clear(); filters={search:'',strand:'',year:'',section:''}; go('login'); render(); await popup('Logout successful','You have been signed out. Your saved records remain on this browser.'); }
+      else if(action==='reset-filters') {overviewYear=''; recordsPage=1; recordsSelection.clear(); filters={search:'',strand:'',year:'',section:''}; render();}
+      else if(action==='records-page') {recordsPage=Math.max(1,Number(button.dataset.page)||1);render();}
+      else if(action==='records-export') {const rows=filtered(data),selected=rows.filter(s=>recordsSelection.has(s.id));csv(selected.length?selected:rows);await popup('CSV download started','The selected or filtered student records have been exported. Use a full backup to preserve grades and academic history.');}
       else if(action==='print') window.print();
       else if(action==='csv'||action==='csv-all') {csv(action==='csv'?filtered(data):sorted(data.students)); await popup('CSV download started','Your student list has been prepared. CSV does not include grades; use a full backup to preserve your workspace.');}
       else if(action==='backup') {download('lnvs-backup-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(data,null,2),'application/json'); await popup('Backup download started','Keep this JSON file privately. It contains your students, grades, and local account information.');}
