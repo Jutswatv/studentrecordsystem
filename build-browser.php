@@ -5,6 +5,7 @@ $out=__DIR__.'/docs';
 if(!is_dir($out.'/assets')) mkdir($out.'/assets',0777,true);
 copy(__DIR__.'/browser/index.html',$out.'/index.html');
 copy(__DIR__.'/browser/app.js',$out.'/app.js');
+copy(__DIR__.'/browser/academic.js',$out.'/academic.js');
 $logo=__DIR__.'/public/assets/school-logo.png';
 if(!is_file($out.'/assets/school-logo.png') || hash_file('sha256',$logo)!==hash_file('sha256',$out.'/assets/school-logo.png')) {
  if(!copy($logo,$out.'/assets/school-logo.png')) throw new RuntimeException('Unable to publish the school logo.');

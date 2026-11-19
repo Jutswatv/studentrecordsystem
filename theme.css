@@ -198,3 +198,15 @@ body:has(.auth) { min-height: 100vh; background: radial-gradient(ellipse at 10% 
   .badge { color: #000; border: 0; background: transparent; }
   .form-footer { background: #fff; }
 }
+
+/* Academic workspace */
+.academic-content { max-width:1200px; margin:0 auto; padding:24px; }
+.academic-content form { margin-block:16px; }
+.academic-content section section { padding-block:16px; border-bottom:1px solid #dde3ec; }
+.academic-content pre { white-space:pre-wrap; overflow-wrap:anywhere; max-width:360px; }
+@media print {
+ .academic-content > * { display:none !important; }
+ .academic-content > .issued-report { display:block !important; border:0; box-shadow:none; }
+ .academic-content { padding:0; max-width:none; }
+ .issued-report table { width:100%; }
+}

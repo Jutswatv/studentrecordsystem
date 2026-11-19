@@ -14,6 +14,8 @@
   const blank = () => ({version:1, admin:null, students:[], grades:{}});
   const num = value => value === null ? '—' : Number(value).toFixed(2);
   const fullName = s => `${s.last_name}, ${s.first_name}${s.middle_name ? ' '+s.middle_name : ''}`;
+  const academic=createAcademicWorkspace({h,input,select,STRANDS,LEGACY:SUBJECTS,makeAdmin,validateStudent,FIELDS});
+  const identity=data=>academic.member(data,sessionStorage.getItem(SESSION));
   function readStore() {
     const raw = localStorage.getItem(KEY);
     if (!raw) return {version:2, accounts:[]};
@@ -30,7 +32,7 @@
   }
   function read() {
     const store=readStore();
-    return (currentAccount(store)||store.accounts[0])?.data || blank();
+    return academic.normalize((currentAccount(store)||store.accounts[0])?.data || blank());
   }
   function saveStore(store) {
     try { localStorage.setItem(KEY, JSON.stringify(store)); }
@@ -38,14 +40,14 @@
   }
   function write(data) {
     const store=readStore(), account=currentAccount(store);
-    if(!account || account.data.admin.hash!==sessionStorage.getItem(SESSION)) throw new Error('Please sign in before saving changes.');
-    if(store.accounts.some(other=>other.id!==account.id && other.data.admin.username.toLowerCase()===data.admin.username.toLowerCase())) throw new Error('Another local account already uses the username in this backup. Sign in to that account before restoring it.');
+    if(!account || !academic.member(account.data,sessionStorage.getItem(SESSION))) throw new Error('Please sign in before saving changes.');
+    if(store.accounts.some(other=>other.id!==account.id && [other.data.admin,...(other.data.academy?.members||[])].some(m=>[data.admin,...(data.academy?.members||[])].some(n=>m.username.toLowerCase()===n.username.toLowerCase())))) throw new Error('Another local account already uses the username in this backup. Sign in to that account before restoring it.');
     account.data=data;
     saveStore(store);
     sessionStorage.setItem(ACTIVE,account.id);
   }
   function logged(data) {
-    return !!data.admin && !!currentAccount(readStore()) && sessionStorage.getItem(SESSION) === data.admin.hash;
+    return !!data.admin && !!currentAccount(readStore()) && !!identity(data);
   }
   function route() {
     const [name='dashboard', query=''] = location.hash.slice(1).split('?');
@@ -76,7 +78,7 @@
     return SUBJECTS.map(subject => average(rows[subject]));
   }
   function completeAverages(data) {
-    return data.students.flatMap(s => studentAverages(data,s.id)).filter(v => v!==null);
+    return data.academy.enrollments.flatMap(e=>academic.rows(data,{role:'admin'},e).map(r=>r.average)).filter(v=>v!==null);
   }
   function generalAverage(data, id) {
     const a=studentAverages(data,id);
@@ -105,10 +107,10 @@
   function auth(data) {
     const setup=route().name==='signup';
     document.title=(setup?'Create account':'Login')+' | LNVS';
-    app.innerHTML=`<main class="auth"><div class="brand">${schoolBrand()}</div><section class="card"><div class="auth-tabs" aria-label="Account access"><a href="#login" class="${setup?'':'active'}" ${setup?'':'aria-current="page"'}>Login</a><a href="#signup" class="${setup?'active':''}" ${setup?'aria-current="page"':''}>Create account</a></div><span class="eyebrow">BROWSER WORKSPACE</span><h1>${setup?'Create your account':'Welcome back'}</h1><p class="muted">${setup?'Create a local account with its own student records and grades.':'Log in to your saved account on this browser.'}</p><form data-form="${setup?'setup':'login'}">${input('Username','username','','text',true,'autocomplete="username" minlength="3" maxlength="50"')}${input('Password','password','','password',true,`${setup?'minlength="12"':''} autocomplete="${setup?'new-password':'current-password'}"`)}${setup?input('Confirm password','confirm','','password',true,'minlength="12" autocomplete="new-password"'):''}<button class="button wide">${setup?'Create account':'Login'} &rarr;</button></form><p class="auth-prompt">${setup?'Already have an account? <a href="#login">Login</a>':'New here? <a href="#signup">Create an account</a>'}</p>${logged(data)?'<p class="auth-prompt"><a href="#dashboard">Back to your workspace</a></p>':''}<p class="local-note"><b>Accounts stay on this browser.</b> Each local account has separate records. Local login is a convenience lock, not server security; records are not encrypted. Export backups regularly.</p></section><p class="muted center">Your records are never sent to GitHub or a database server.</p></main>`;
+    app.innerHTML=`<main class="auth"><div class="brand">${schoolBrand()}</div><section class="card"><div class="auth-tabs" aria-label="Account access"><a href="#login" class="${setup?'':'active'}" ${setup?'':'aria-current="page"'}>Login</a><a href="#signup" class="${setup?'active':''}" ${setup?'aria-current="page"':''}>Create account</a></div><span class="eyebrow">BROWSER WORKSPACE</span><h1>${setup?'Create your account':'Welcome back'}</h1><p class="muted">${setup?'Create a local account with its own student records and grades.':'Log in to your saved account on this browser.'}</p><form data-form="${setup?'setup':'login'}">${input('Username','username','','text',true,'autocomplete="username" minlength="3" maxlength="50"')}${input('Password','password','','password',true,`${setup?'minlength="12"':''} autocomplete="${setup?'new-password':'current-password'}"`)}${setup?input('Confirm password','confirm','','password',true,'minlength="12" autocomplete="new-password"'):''}<button class="button wide">${setup?'Create account':'Login'} &rarr;</button></form><p class="auth-prompt">${setup?'Already have an account? <a href="#login">Login</a>':'New here? <a href="#signup">Create an account</a>'}</p>${logged(data)?'<p class="auth-prompt"><a href="#dashboard">Back to your workspace</a></p>':''}<p class="local-note"><b>Accounts stay on this browser.</b> Each administrator has a separate workspace. Assigned teacher, adviser and student accounts open that workspace through local role controls. Local login is a convenience lock, not server security; records are not encrypted. Export backups regularly.</p></section><p class="muted center">Your records are never sent to GitHub or a database server.</p></main>`;
   }
   function layout(data,title,active,body,action='') {
-    const nav=[['dashboard','&#9707;','Dashboard'],['students','&#9636;','Student records'],['register','&#65291;','Registration'],['grades','&#9638;','Grades management'],['reports','&#9719;','Reports']];
+    const nav=[['academic','&#9672;','Academic workspace'],['dashboard','&#9707;','Dashboard'],['students','&#9636;','Student records'],['register','&#65291;','Registration'],['grades','&#9638;','Grades management'],['reports','&#9719;','Reports']];
     document.title=title+' | LNVS Student Records';
     app.innerHTML=`<aside class="sidebar"><a class="brand" href="#dashboard">${schoolBrand()}</a><span class="nav-label">LOCAL WORKSPACE</span><nav>${nav.map(([key,icon,label])=>`<a class="${active===key?'active':''}" href="#${key}"><span>${icon}</span>${label}</a>`).join('')}</nav><div class="sidebar-bottom"><a href="#settings">&#9881; Account &amp; backups</a><button class="logout" data-action="logout">&#8599; Sign out</button><div class="admin"><b>${h(data.admin.username.slice(0,1).toUpperCase())}</b><span>${h(data.admin.username)}<small>Local administrator</small></span></div></div></aside><main class="main"><header class="topbar"><span>Browser workspace / ${h(title)}</span><span class="badge">Grade 12</span></header><div class="content"><div class="page-heading"><div><span class="eyebrow">STUDENT RECORD MANAGEMENT</span><h1>${h(title)}</h1><p>Libertad National Vocational School &middot; Your local Grade 12 workspace</p></div>${action}</div>${body}<footer>LNVS Gradebook <span>Browser storage &middot; No server database</span></footer></div></main>`;
   }
@@ -123,8 +125,8 @@
   }
   function insights(data) {
     const averages=completeAverages(data), passing=averages.filter(v=>v>=75).length;
-    const encoded=data.students.reduce((count,s)=>count+Object.values(data.grades[s.id]||{}).filter(v=>v.some(g=>g!==null)).length,0);
-    return `<div class="two-cols"><section class="card"><div class="card-heading"><h2>Strand distribution</h2><span class="muted">${data.students.length} students</span></div>${STRANDS.map(strand=>{ const count=data.students.filter(s=>s.strand===strand).length; return `<div class="distribution"><div><span>${h(strand)}</span><b>${count}</b></div><meter min="0" max="${Math.max(1,data.students.length)}" value="${count}">${count}</meter></div>`; }).join('')}</section><section class="card"><div class="card-heading"><h2>Academic overview</h2><span class="badge">All years</span></div>${[['Completed subject grades',averages.length],['Passing subjects (≥ 75)',passing],['Below passing (< 75)',averages.length-passing],['Incomplete encoded subjects',encoded-averages.length]].map(([label,v])=>`<div class="summary-item"><span>${h(label)}</span><strong>${v}</strong></div>`).join('')}<p class="muted help">A subject average requires four quarterly grades. General averages require all seven subjects. Blank grades are unencoded.</p><a class="text-link" href="#grades">Manage grades &rarr;</a></section></div>`;
+    const encoded=data.academy.enrollments.reduce((count,e)=>count+academic.rows(data,{role:'admin'},e).length,0);
+    return `<div class="two-cols"><section class="card"><div class="card-heading"><h2>Strand distribution</h2><span class="muted">${data.students.length} students</span></div>${STRANDS.map(strand=>{ const count=data.students.filter(s=>s.strand===strand).length; return `<div class="distribution"><div><span>${h(strand)}</span><b>${count}</b></div><meter min="0" max="${Math.max(1,data.students.length)}" value="${count}">${count}</meter></div>`; }).join('')}</section><section class="card"><div class="card-heading"><h2>Academic overview</h2><span class="badge">All years</span></div>${[['Completed subject grades',averages.length],['Passing subjects (≥ 75)',passing],['Below passing (< 75)',averages.length-passing],['Incomplete curriculum subjects',encoded-averages.length]].map(([label,v])=>`<div class="summary-item"><span>${h(label)}</span><strong>${v}</strong></div>`).join('')}<p class="muted help">Current averages use the grading periods configured for each enrollment curriculum. Blank grades are unencoded; school-approved grading rules are still required.</p><a class="text-link" href="#academic">Manage curriculum-based grades &rarr;</a></section></div>`;
   }
   function filterForm() {
     return `<form data-form="filter" class="filters"><label class="grow">Search students<input name="search" placeholder="Name, LRN, or section" value="${h(filters.search)}"></label>${select('Strand','strand',STRANDS,filters.strand,'All strands')}${input('School year','year',filters.year,'text',false,'placeholder="2026-2027"')}<button class="button">Apply filters</button><button type="button" class="button secondary" data-action="reset-filters">Reset</button></form>`;
@@ -139,7 +141,7 @@
   }
   function profile(data,student,editing=false) {
     const id=encodeURIComponent(student.id);
-    return `<div class="print-heading">${schoolBrand()}</div><section class="card profile"><div class="card-heading"><div><span class="eyebrow">GRADE 12 &middot; ${h(student.school_year)}</span><h2>${h(fullName(student))}</h2><p class="muted">LRN ${h(student.lrn)} &middot; ${h(student.strand+' / '+student.section)}</p></div><div class="actions no-print"><a class="button secondary" href="#edit?id=${id}">Edit student</a><a class="button secondary" href="#${editing?'profile':'encode'}?id=${id}">${editing?'View profile':'Encode grades'}</a>${editing?'':'<button class="button secondary" data-action="print">Print profile</button>'}</div></div>${editing?'':`<div class="details">${[['sex','Sex'],['birth_date','Birth date'],['email','Email'],['phone','Contact number'],['address','Address'],['guardian','Guardian'],['guardian_phone','Guardian contact']].map(([key,label])=>`<div><small>${h(label)}</small><b>${h(student[key]||'—')}</b></div>`).join('')}</div>`}</section><section class="card"><h2>Quarterly grades</h2><p class="muted">Average = (Q1 + Q2 + Q3 + Q4) / 4. Passing grade: 75.</p>${editing?`<form data-form="grades"><input type="hidden" name="id" value="${h(student.id)}">`:''}${gradeTable(data,student,editing)}${editing?'<div class="form-footer"><span class="muted">Leave unencoded quarters blank.</span><button class="button">Save quarterly grades</button></div></form>':''}</section>`;
+    return `<div class="print-heading">${schoolBrand()}</div><section class="card profile"><div class="card-heading"><div><span class="eyebrow">GRADE 12 &middot; ${h(student.school_year)}</span><h2>${h(fullName(student))}</h2><p class="muted">LRN ${h(student.lrn)} &middot; ${h(student.strand+' / '+student.section)}</p></div><div class="actions no-print"><a class="button secondary" href="#edit?id=${id}">Edit student</a><a class="button secondary" href="#${editing?'profile':'encode'}?id=${id}">${editing?'View profile':'Encode grades'}</a>${editing?'':'<button class="button secondary" data-action="print">Print profile</button>'}</div></div>${editing?'':`<div class="details">${[['sex','Sex'],['birth_date','Birth date'],['email','Email'],['phone','Contact number'],['address','Address'],['guardian','Guardian'],['guardian_phone','Guardian contact']].map(([key,label])=>`<div><small>${h(label)}</small><b>${h(student[key]||'—')}</b></div>`).join('')}</div>`}</section><section class="card"><h2>Legacy quarterly grade archive</h2><p><a href="#academic">Open current curriculum-based grades and academic reports</a></p><p class="muted">Average = (Q1 + Q2 + Q3 + Q4) / 4. Passing grade: 75.</p>${editing?`<form data-form="grades"><input type="hidden" name="id" value="${h(student.id)}">`:''}${gradeTable(data,student,editing)}${editing?'<div class="form-footer"><span class="muted">Leave unencoded quarters blank.</span><button class="button">Save quarterly grades</button></div></form>':''}</section>`;
   }
   function reports(data) {
     const groups=new Map();
@@ -147,20 +149,23 @@
     return stats(data)+insights(data)+`<section class="card"><div class="card-heading"><h2>Enrollment summary</h2><button class="button secondary" data-action="csv-all">Export all students</button></div><div class="table-wrap"><table><thead><tr><th>School year</th><th>Strand</th><th>Male</th><th>Female</th><th>Total</th></tr></thead><tbody>${[...groups.values()].sort((a,b)=>b.year.localeCompare(a.year)||a.strand.localeCompare(b.strand)).map(r=>`<tr><td>${h(r.year)}</td><td>${h(r.strand)}</td><td>${r.male}</td><td>${r.female}</td><td>${r.total}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Register students to see enrollment summaries.</td></tr>'}</tbody></table></div></section>`;
   }
   function settings(data) {
-    return `<div class="settings-stack"><section class="card"><h2>Back up your workspace</h2><p class="muted">A full JSON backup includes your local account, students, and grades. Store it privately. CSV is useful for student lists, but it does not include your account or grades.</p><div class="backup-actions"><button class="button" data-action="backup">Download full backup</button><button class="button secondary" data-action="csv-all">Download students CSV</button></div><hr><h2>Restore a backup</h2><p class="muted">Restore a backup on this browser or a new device. Restoring replaces this account?s records and signs you out. Other local accounts are kept. Use the password from the restored backup to sign in.</p><form data-form="restore"><label>Gradebook backup (.json)<input type="file" name="backup" accept="application/json,.json" required></label><button class="button secondary">Restore backup</button></form></section><section class="card"><h2>Change local password</h2><p class="muted">Signed in as ${h(data.admin.username)}. Use at least 12 characters.</p><form data-form="password">${input('Current password','current','','password',true,'autocomplete="current-password"')}${input('New password','password','','password',true,'minlength="12" autocomplete="new-password"')}${input('Confirm new password','confirm','','password',true,'minlength="12" autocomplete="new-password"')}<button class="button">Update password</button></form></section><section class="card"><h2>Account access</h2><p class="muted">Switch accounts or create another local account with a separate student workspace.</p><div class="backup-actions"><a class="button secondary" href="#login">Login to another account</a><a class="button secondary" href="#signup">Create account</a></div></section><section class="card"><h2>About browser storage</h2><p class="muted">This is a working local application, not a server database. Your information stays in this browser profile on this site. It is not shared with other devices, browsers, or administrators. The local sign-in does not encrypt the records or protect them from someone with access to this browser or its developer tools. Keep backups and use a trusted device.</p></section></div>`;
+    return `<div class="settings-stack"><section class="card"><h2>Back up your workspace</h2><p class="muted">A full JSON backup includes your local account, students, grades, curriculum, enrollments, issued reports, audit history and local member accounts. Store it privately. CSV is useful for student lists, but it does not include your account or grades.</p><div class="backup-actions"><button class="button" data-action="backup">Download full backup</button><button class="button secondary" data-action="csv-all">Download students CSV</button></div><hr><h2>Restore a backup</h2><p class="muted">Restore a backup on this browser or a new device. Restoring replaces this account?s records and signs you out. Other local accounts are kept. Use the password from the restored backup to sign in.</p><form data-form="restore"><label>Gradebook backup (.json)<input type="file" name="backup" accept="application/json,.json" required></label><button class="button secondary">Restore backup</button></form></section><section class="card"><h2>Change local password</h2><p class="muted">Signed in as ${h(data.admin.username)}. Use at least 12 characters.</p><form data-form="password">${input('Current password','current','','password',true,'autocomplete="current-password"')}${input('New password','password','','password',true,'minlength="12" autocomplete="new-password"')}${input('Confirm new password','confirm','','password',true,'minlength="12" autocomplete="new-password"')}<button class="button">Update password</button></form></section><section class="card"><h2>Account access</h2><p class="muted">Switch accounts or create another local account with a separate student workspace.</p><div class="backup-actions"><a class="button secondary" href="#login">Login to another account</a><a class="button secondary" href="#signup">Create account</a></div></section><section class="card"><h2>About browser storage</h2><p class="muted">This is a working local application, not a server database. Your information stays in this browser profile on this site. It is not shared with other devices, browsers, or administrators. The local sign-in does not encrypt the records or protect them from someone with access to this browser or its developer tools. Keep backups and use a trusted device.</p></section></div>`;
   }
   function render() {
     try {
       const data=read();
       if(!logged(data) || ['login','signup'].includes(route().name)) { auth(data); return; }
       const {name,params}=route();
+      const user=identity(data);
+      if(name==='academic'||user.role!=='admin') { layout(data,'Academic workspace','academic',academic.view(data,user,params));app.querySelector('.content').classList.add('academic-browser'); if(user.role!=='admin') {app.querySelector('nav').innerHTML='<a href="#academic">Academic workspace</a>';app.querySelector('.sidebar-bottom > a')?.remove();app.querySelector('.admin span').textContent=user.username+' · '+user.role;} return; }
+      if(name==='encode') {const enrollment=data.academy.enrollments.find(e=>e.student_id===params.get('id'));go('academic'+(enrollment?'?enrollment='+encodeURIComponent(enrollment.id):''));return;}
       const student=data.students.find(s=>s.id===params.get('id'));
       const add='<a class="button" href="#register">&#65291; Register student</a>';
       if(name==='dashboard') layout(data,'Dashboard','dashboard',stats(data)+insights(data)+`<section class="card"><div class="card-heading"><h2>Recently registered</h2><a class="text-link" href="#students">View all students &rarr;</a></div>${table([...data.students].reverse().slice(0,5))}</section>`,add);
       else if(name==='students'||name==='grades') { const rows=filtered(data); layout(data,name==='grades'?'Grades management':'Student records',name,`<section class="card">${filterForm()}<div class="card-heading"><span class="muted">${rows.length} students</span><button class="button secondary" data-action="csv">Export filtered CSV</button></div>${table(rows,name==='grades')}</section>`,add); }
       else if(name==='register'||name==='edit') layout(data,name==='edit'?'Edit student':'Student registration','register',name==='edit'&&!student?'<section class="card"><h2>Student not found</h2><a href="#students">Return to records</a></section>':studentForm(student));
       else if(name==='profile'||name==='encode') layout(data,name==='encode'?'Grades management':'Student profile',name==='encode'?'grades':'students',student?profile(data,student,name==='encode'):'<section class="card"><h2>Student not found</h2><a href="#students">Return to records</a></section>');
-      else if(name==='reports') layout(data,'Reports','reports',reports(data));
+      else if(name==='reports') {layout(data,'Academic reports','reports',academic.view(data,user,params));app.querySelector('.content').classList.add('academic-browser');}
       else if(name==='settings') layout(data,'Account & backups','settings',settings(data));
       else layout(data,'Page not found','', '<section class="card"><a href="#dashboard">Return to dashboard</a></section>');
     } catch(error) {
@@ -208,13 +213,14 @@
       s.created_at=typeof original.created_at==='string'?original.created_at:new Date().toISOString();
       ids.add(s.id); lrns.add(s.lrn); clean.students.push(s);
       const rows=data.grades[s.id]||{}; clean.grades[s.id]={};
-      for(const subject of SUBJECTS) if(Object.hasOwn(rows,subject)) {
+      for(const subject of Object.keys(rows)) if(Object.hasOwn(rows,subject)) {
         const values=rows[subject];
         if(!Array.isArray(values)||values.length!==4||values.some(v=>v!==null&&(typeof v!=='number'||!Number.isFinite(v)||v<0||v>100))) throw new Error('The backup contains invalid quarterly grades.');
         clean.grades[s.id][subject]=[...values];
       }
     }
-    return clean;
+    if(data.academy) clean.academy=academic.validate(data.academy,clean.students);
+    return academic.normalize(clean);
   }
   app.addEventListener('submit', async event => {
     const form=event.target.closest('form[data-form]'); if(!form) return;
@@ -227,23 +233,27 @@
         const username=String(fd.get('username')).trim(), password=String(fd.get('password'));
         if(username.length<3||username.length>50||password.length<12) throw new Error('Use a username of 3-50 characters and a password of at least 12 characters.');
         if(password!==fd.get('confirm')) throw new Error('Passwords do not match.');
-        if(readStore().accounts.some(account=>account.data.admin.username.toLowerCase()===username.toLowerCase())) throw new Error('That username already exists on this browser. Choose another username or log in.');
+        if(readStore().accounts.some(account=>[account.data.admin,...(account.data.academy?.members||[])].some(m=>m.username.toLowerCase()===username.toLowerCase()))) throw new Error('That username already exists on this browser. Choose another username or log in.');
         const admin=await makeAdmin(username,password);
         const store=readStore();
-        if(store.accounts.some(account=>account.data.admin.username.toLowerCase()===username.toLowerCase())) throw new Error('That username was just registered in another tab. Choose another username or log in.');
+        if(store.accounts.some(account=>[account.data.admin,...(account.data.academy?.members||[])].some(m=>m.username.toLowerCase()===username.toLowerCase()))) throw new Error('That username was just registered in another tab. Choose another username or log in.');
         data=blank(); data.admin=admin;
         const id=crypto.randomUUID(); store.accounts.push({id,data}); saveStore(store);
         sessionStorage.setItem(ACTIVE,id); sessionStorage.setItem(SESSION,admin.hash); filters={search:'',strand:'',year:''}; go('dashboard'); render(); await popup('Account created','Your local account is ready with an empty student workspace.'); return;
       }
       if(kind==='login') {
         const username=String(fd.get('username')).trim().toLowerCase();
-        const account=readStore().accounts.find(account=>account.data.admin.username.toLowerCase()===username);
-        if(!account || await passwordHash(String(fd.get('password')),account.data.admin.salt)!==account.data.admin.hash) throw new Error('Invalid username or password.');
-        const latest=readStore().accounts.find(item=>item.id===account.id);
-        if(!latest || latest.data.admin.hash!==account.data.admin.hash) throw new Error('This account changed in another tab. Try logging in again.');
-        sessionStorage.setItem(ACTIVE,account.id); sessionStorage.setItem(SESSION,account.data.admin.hash); filters={search:'',strand:'',year:''}; go('dashboard'); render(); await popup('Login successful','Welcome back to your local student workspace.'); return;
+        const store=readStore(); let found=null;
+        for(const account of store.accounts) {const user=[account.data.admin,...(account.data.academy?.members||[])].find(m=>m.username.toLowerCase()===username&&m.active!==false);if(user)found={account,user};}
+        if(!found || await passwordHash(String(fd.get('password')),found.user.salt)!==found.user.hash) throw new Error('Invalid username or password.');
+        const latest=readStore().accounts.find(item=>item.id===found.account.id);
+        if(!latest||![latest.data.admin,...(latest.data.academy?.members||[])].some(m=>m.hash===found.user.hash&&m.active!==false))throw new Error('This account changed in another tab. Try again.');
+        sessionStorage.setItem(ACTIVE,found.account.id); sessionStorage.setItem(SESSION,found.user.hash); filters={search:'',strand:'',year:''}; go(found.user.role?'academic':'dashboard'); render(); await popup('Login successful','Welcome back to your local student workspace.'); return;
       }
       if(!logged(data)) throw new Error('Please sign in before making changes.');
+      const user=identity(data);
+      if(kind.startsWith('academic-')) {const original=localStorage.getItem(KEY);const next=await academic.submit(data,user,kind.slice(9),fd,readStore().accounts);if(localStorage.getItem(KEY)!==original)throw new Error('Another tab changed this workspace. Reload and try again.');write(data);if(next)go(next);render();if(kind!=='academic-verify')await popup('Changes saved','Academic workspace updated on this browser.');return;}
+      if(user.role!=='admin') throw new Error('Use your assigned Academic Workspace.');
       if(kind==='filter') { filters={search:String(fd.get('search')).trim(),strand:String(fd.get('strand')),year:String(fd.get('year')).trim()}; render(); return; }
       if(kind==='student') {
         const id=String(fd.get('id')||''), s={};
@@ -252,14 +262,10 @@
         if(data.students.some(student=>student.lrn===s.lrn&&student.id!==id)) throw new Error('That LRN is already registered.');
         if(id) { const index=data.students.findIndex(student=>student.id===id); if(index<0) throw new Error('Student not found.'); data.students[index]={...data.students[index],...s}; }
         else { s.id=crypto.randomUUID(); s.created_at=new Date().toISOString(); data.students.push(s); }
+        academic.normalize(data); academic.audit(data,user,id?'Student identity updated':'Student registered',data.academy.enrollments.find(e=>e.student_id===(id||s.id)),null,s,'Student record saved');
         write(data); go('profile?id='+encodeURIComponent(id||s.id)); render(); await popup(id?'Record updated':'Student created',id?'Student information has been saved on this browser.':'The student has been registered on this browser.'); return;
       }
-      if(kind==='grades') {
-        const id=String(fd.get('id')); if(!data.students.some(s=>s.id===id)) throw new Error('Student not found.');
-        const rows={};
-        SUBJECTS.forEach((subject,i)=>{rows[subject]=[0,1,2,3].map(q=>{const raw=String(fd.get(`g${i}_${q}`)||'').trim(); if(raw==='') return null; const value=Number(raw); if(!Number.isFinite(value)||value<0||value>100) throw new Error('Grades must be between 0 and 100.'); return Math.round(value*100)/100;});});
-        data.grades[id]=rows; write(data); render(); await popup('Grades saved','Quarterly grades and averages have been saved on this browser.'); return;
-      }
+      if(kind==='grades') throw new Error('Encode curriculum-based grades in Academic Workspace.');
       if(kind==='password') {
         if(await passwordHash(String(fd.get('current')),data.admin.salt)!==data.admin.hash) throw new Error('Current password is incorrect.');
         const password=String(fd.get('password')); if(password.length<12) throw new Error('Use at least 12 characters.'); if(password!==fd.get('confirm')) throw new Error('Passwords do not match.');
@@ -293,6 +299,7 @@
     try {
       const data=read(); if(!logged(data)) {render(); return;}
       const action=button.dataset.action;
+      if(identity(data).role!=='admin'&&!['logout','print'].includes(action))throw new Error('Administrator access required.');
       if(action==='logout') { if(!await popup('Sign out?','Are you sure you want to sign out of your local account?','warning',true,'Yes, sign out','No, stay signed in')) return; sessionStorage.removeItem(SESSION); sessionStorage.removeItem(ACTIVE); filters={search:'',strand:'',year:''}; go('login'); render(); await popup('Logout successful','You have been signed out. Your saved records remain on this browser.'); }
       else if(action==='reset-filters') {filters={search:'',strand:'',year:''}; render();}
       else if(action==='print') window.print();
@@ -300,8 +307,9 @@
       else if(action==='backup') {download('lnvs-backup-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(data,null,2),'application/json'); await popup('Backup download started','Keep this JSON file privately. It contains your students, grades, and local account information.');}
       else if(action==='delete') {
         const student=data.students.find(s=>s.id===button.dataset.id); if(!student) throw new Error('Student not found.');
+        if(data.academy.enrollments.some(e=>e.student_id===student.id&&(Object.keys(data.academy.grades[e.id]||{}).length||data.academy.reports.some(r=>r.enrollment_id===e.id)))||data.academy.enrollments.filter(e=>e.student_id===student.id).length>1)throw new Error('Students with academic history must be retained.');
         if(!await popup('Delete student?',`Delete ${fullName(student)} and all associated grades? This cannot be undone without restoring a backup.`,'warning',true,'Yes, delete student','No, keep student')) return;
-        const latest=read(); if(!logged(latest)) throw new Error('Please sign in again.'); latest.students=latest.students.filter(s=>s.id!==student.id); delete latest.grades[student.id]; write(latest); go('students'); render(); await popup('Student deleted','The student record and associated grades have been removed from this browser.');
+        const latest=read(); if(!logged(latest)) throw new Error('Please sign in again.'); latest.students=latest.students.filter(s=>s.id!==student.id); delete latest.grades[student.id]; latest.academy.enrollments=latest.academy.enrollments.filter(e=>e.student_id!==student.id); latest.academy.members=latest.academy.members.filter(m=>m.student_id!==student.id); academic.audit(latest,identity(latest),'Student deleted',null,student,null,'Administrator deletion of record without academic history'); write(latest); go('students'); render(); await popup('Student deleted','The student record and associated grades have been removed from this browser.');
       }
     } catch(error) {await popup('Action unavailable',error.message,'error');}
   });

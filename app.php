@@ -27,6 +27,9 @@ $_SESSION['csrf'] ??= bin2hex(random_bytes(32));
 $error='';
 $setup=(int)query('SELECT COUNT(*) FROM admins')->fetchColumn()===0;
 $page=$_GET['page']??'dashboard';
+require __DIR__.'/academic.php';
+if(isset($_SESSION['academic_user']) && !isset($_SESSION['admin'])) go('index.php?page=academic');
+if(isset($_SESSION['admin']) && $page==='grades') go('index.php?page=academic');
 if($_SERVER['REQUEST_METHOD']==='POST') {
  try {
   if(!hash_equals($_SESSION['csrf'],(string)($_POST['csrf']??''))) throw new Exception('Your session expired. Reload the page and try again.');
@@ -73,8 +76,8 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
    else { query('INSERT INTO students('.implode(',',$fields).') VALUES ('.implode(',',array_fill(0,count($fields),'?')).')',array_values($v)); $id=(int)$db->lastInsertId(); }
    flash($creating?'The new student has been registered successfully.':'The student information has been updated successfully.', $creating?'Student created':'Record updated'); go('index.php?page=profile&id='.$id);
   }
-  if($action==='delete') { $deleted=query('DELETE FROM students WHERE id=?',[(int)$_POST['id']]); if(!$deleted->rowCount()) throw new Exception('Student not found.'); flash('The student record and associated grades have been deleted.', 'Student deleted'); go('index.php?page=students'); }
-  if($action==='grades') {
+  if($action==='delete') { throw new Exception('Student identities with academic history must be retained.'); $deleted=query('DELETE FROM students WHERE id=?',[(int)$_POST['id']]); if(!$deleted->rowCount()) throw new Exception('Student not found.'); flash('The student record and associated grades have been deleted.', 'Student deleted'); go('index.php?page=students'); }
+  if($action==='grades') { throw new Exception('Use Academic Workspace for audited, curriculum-based grades.');
    $id=(int)$_POST['id']; if(!query('SELECT id FROM students WHERE id=?',[$id])->fetchColumn()) throw new Exception('Student not found.');
    $rows=[]; foreach($subjects as $i=>$subject) { $row=[$id,$subject]; foreach(['q1','q2','q3','q4'] as $q) { $value=trim($_POST['grade'][$i][$q]??''); if($value!=='' && (!is_numeric($value) || (float)$value<0 || (float)$value>100)) throw new Exception('Grades must be between 0 and 100.'); $row[]=$value===''?null:(float)$value; } $rows[]=$row; }
    $db->beginTransaction(); foreach($rows as $row) query('INSERT INTO grades VALUES (?,?,?,?,?,?) ON CONFLICT(student_id,subject) DO UPDATE SET q1=excluded.q1,q2=excluded.q2,q3=excluded.q3,q4=excluded.q4',$row); $db->commit(); flash('Quarterly grades saved.', 'Grades saved'); go('index.php?page=grades&id='.$id);
