@@ -140,3 +140,16 @@ The browser Enrollment page follows the supplied Grade 12 reference, with status
 For older records without an explicitly entered enrollment date, the list displays the record creation/import date. New enrollment forms allow an explicit date and require it for Enrolled status. Dates display in Asia/Manila time. Statuses and entered dates are included in full backups. Local role controls retain the same browser-only limitations described above.
 
 Sources: `browser/enrollment.js` and `browser/enrollment.css`. Banner artwork and exact prompt: `browser/enrollment-art.md`. Run `node tests/browser-enrollment.cjs` for isolated enrollment checks.
+
+
+### Curriculum & Subjects dashboard
+
+The browser curriculum page follows the supplied teal reference, with live subject-type metrics, Curriculum Setup and Subject List panels, Subject Assignment and Subject Load tabs, quick actions, and strand coverage. The original school branding and saved subject records remain intact; the banner reuses the existing generated enrollment artwork.
+
+Curriculum groups define a school year, grade, description and offered strands. Subjects retain their year/grade/semester/strand scope and may optionally link to a compatible group. Subject codes, types, units and grading periods are editable with an audit reason. Existing records without types or units remain unclassified. The page starts with real stored records; it does not seed the reference image's sample curriculum or totals.
+
+Subjects with grade records, correction requests, issued reports or teacher assignments cannot be archived. Grading period counts cannot change after grade records exist. Unused subjects and curriculum groups can be archived and restored. Curriculum scope/strand edits cannot invalidate linked subjects. Metadata corrections preserve subject IDs, grades and frozen report snapshots.
+
+Subject Assignment uses the existing local teacher access controls. Subject Load counts a subject/class/term once rather than once per assigned student, keeps unknown units explicit, and compares known units with a configurable review threshold. Subject Settings changes defaults for new subjects only; use school-approved units and load limits. Full backups preserve curriculum groups, subject metadata, settings and audit history, while older backups remain supported.
+
+Sources: `browser/curriculum.js` and `browser/curriculum.css`. Run `node tests/browser-curriculum.cjs` for isolated curriculum UI checks, along with the existing academic, records and enrollment checks.
