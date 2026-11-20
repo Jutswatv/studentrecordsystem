@@ -1,0 +1,202 @@
+/* Grade Management reference layout and live grade encoding. */
+.grades-content { max-width:1740px; padding:12px 24px 24px; }
+.app-main:has(.grades-content) .topbar { height:58px; }
+.grades-hero { min-height:141px; padding:25px 36px; margin-bottom:15px; border-radius:18px; background:linear-gradient(110deg,#02364e,#006b7f 65%,#00899c); isolation:isolate; }
+.grades-hero>div { position:relative; z-index:2; max-width:79%; }
+.grades-hero .eyebrow { color:#c4f7f7; font-size:10px; letter-spacing:2px; }
+.grades-hero h1 { font-size:32px; font-weight:750; margin:10px 0 6px; line-height:1.2; }
+.grades-hero p { color:#effcff; font-size:13px; max-width:none; line-height:1.6; }
+.grades-hero::before { content:''; position:absolute; inset:0 0 0 45%; z-index:-1; background:repeating-linear-gradient(135deg,transparent 0 50px,#3ee4db1c 50px 78px,transparent 78px 109px); transform:skewX(-15deg); }
+.grades-hero::after { width:430px; height:430px; top:-265px; right:-100px; border:55px solid #59e9e91a; z-index:-1; }
+.grades-hero-art { position:absolute; width:275px; height:136px; object-fit:contain; bottom:0; right:91px; pointer-events:none; z-index:1; }
+.grades-hero-score { position:absolute; right:36px; top:32px; width:73px; height:73px; border:4px solid #f9d23c; border-radius:50%; color:#fff; display:flex; align-items:center; justify-content:center; font-size:38px; font-weight:750; transform:rotate(9deg); z-index:1; }
+.grades-hero-score sup { color:#f9d23c; font-size:23px; margin-top:-23px; }
+.grades-metrics { margin-bottom:16px; gap:15px; }
+.grades-metrics .record-metric { min-height:111px; padding:16px 13px; gap:14px; }
+.grades-metrics .record-metric-icon { width:53px; height:57px; flex-basis:53px; }
+.grades-metrics .record-metric strong { font-size:32px; }
+.grades-metrics .record-metric>div>span { font-size:11px; }
+.grades-metrics .record-metric small { font-size:10px; }
+.grades-layout { display:grid; grid-template-columns:minmax(0,1fr) 316px; gap:17px; align-items:start; }
+.grades-main { min-width:0; }
+.grades-filters { display:flex; align-items:center; gap:13px; background:linear-gradient(110deg,#fff,#f3faff); padding:10px 0; border-radius:15px; margin:0 0 15px; }
+.grades-filters .records-select { margin:0; min-width:110px; flex:1; padding:5px 12px; gap:12px; border-radius:10px; }
+.grades-filters .records-select:last-of-type { flex:1.05; }
+.grades-filters .records-select small { font-size:9px; font-weight:600; }
+.grades-filters .records-select select { font-size:11px; font-weight:650; min-height:22px; }
+.grades-filters .records-select .ui-icon { width:21px; height:21px; flex-basis:21px; }
+.grades-filters>.button { display:flex; align-items:center; justify-content:center; gap:8px; font-size:11px; padding:12px; min-height:45px; background:linear-gradient(#eff9fa,#d8eff1); border-color:#c6e0e9; color:#006475; white-space:nowrap; }
+.grades-filters>.button .ui-icon { width:17px; height:17px; flex-basis:17px; }
+.grade-encoding { border:1px solid #e0eaf4; padding:12px 14px 11px; border-radius:18px; margin:0 0 16px; background:linear-gradient(130deg,#fff,#f7fcff); box-shadow:0 7px 17px #235d7c12; }
+.grade-encoding .records-list-heading { padding:5px 2px 21px; margin-bottom:12px; border-bottom:0; }
+.grade-encoding .records-title h2 { font-size:17px; font-weight:750; }
+.grade-encoding .records-title p { font-size:11px; }
+.grade-encoding .record-title-icon { width:43px; height:43px; flex-basis:43px; }
+.grade-encoding .record-title-icon .ui-icon { width:25px; height:25px; }
+.grade-encoding .records-table-tools { gap:10px; }
+.grade-encoding .records-table-tools .button { font-size:10px; padding:9px 11px; border-radius:9px; color:#152b43; }
+.grades-table-wrap { max-width:100%; overflow-x:auto; border-radius:12px; border:1px solid #dfebf3; }
+.grades-encoding-table { min-width:870px; font-size:11px; }
+.grades-encoding-table thead { background:linear-gradient(100deg,#006c78,#00545f); }
+.grades-encoding-table th { background:transparent; color:#fff; text-transform:none; white-space:nowrap; padding:11px 8px; font-size:11px; letter-spacing:0; font-weight:650; }
+.grades-encoding-table td { padding:9px 8px; border-color:#e2edf5; white-space:nowrap; color:#173757; vertical-align:middle; }
+.grades-encoding-table tbody tr { background:linear-gradient(100deg,#fff,#f8fcff); }
+.grades-encoding-table tbody tr.is-selected { background:linear-gradient(100deg,#f2fbfc,#f7fcff); }
+.grades-encoding-table th:first-child,.grades-encoding-table td:first-child { text-align:center; width:28px; }
+.grades-encoding-table td .grade-student-select { max-width:190px; white-space:normal; display:block; background:transparent; border:0; padding:0; color:#112f52; text-align:left; font-size:11px; font-weight:700; cursor:pointer; line-height:1.5; }
+.grade-student-select:hover { text-decoration:underline; }
+.grades-encoding-table input[data-grade-period] { min-width:50px; width:56px; max-width:64px; min-height:36px; padding:8px 4px; border:1px solid #b4cbdf; border-radius:7px; text-align:center; color:#102f50; background:#fff; font-weight:650; font-size:13px; box-shadow:inset 0 1px 2px #17415e08; appearance:textfield; -moz-appearance:textfield; }
+.grades-encoding-table input[data-grade-period]::-webkit-inner-spin-button,.grades-encoding-table input[data-grade-period]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+.grades-encoding-table input[data-grade-period]:focus { border-color:#008d9d; box-shadow:0 0 0 3px #008c9d18; }
+.grades-encoding-table input[data-grade-period]:invalid { border-color:#f18188; background:#fff4f3; }
+.grade-final,.grade-remark { display:inline-flex; justify-content:center; align-items:center; padding:6px 12px; min-width:68px; font-size:12px; font-weight:750; border-radius:11px; color:#096322; background:linear-gradient(115deg,#d9fce5,#bdf3ce); }
+.grade-remark { min-width:78px; font-size:11px; }
+.grade-final.is-incomplete,.grade-remark.is-incomplete,.grade-small-remark.is-incomplete { background:#ecf2f7; color:#698094; }
+.grade-final.is-failing,.grade-remark.is-failing,.grade-small-remark.is-failing { background:#ffe5e9; color:#b43757; }
+.grade-row-form { margin:0; display:flex; flex-direction:column; gap:4px; align-items:center; min-width:76px; }
+.grade-row-actions { display:flex; align-items:center; gap:7px; }
+.grade-save-button,.grade-reset-button { display:grid; place-items:center; width:32px; height:32px; padding:6px; border-radius:8px; border:1px solid #a8c9df; background:#fff; color:#234e72; }
+.grade-save-button { color:#fff; background:linear-gradient(135deg,#0488ff,#0268ed); border-color:#087bf2; box-shadow:0 4px 10px #1584f525; }
+.grade-save-button:hover { background:#0060d7; }.grade-reset-button:hover { background:#edf6fc; }
+.grade-row-actions .ui-icon { width:19px; height:19px; flex-basis:19px; }
+.grade-row-form input[data-grade-reason] { min-height:23px; height:23px; width:100%; max-width:91px; padding:4px 5px; border-radius:5px; font-size:9px; font-weight:400; }
+.grade-row-form input[data-grade-reason]::placeholder { color:#647e96; opacity:1; }
+.grade-unsaved { display:block; min-height:0; margin:0; color:#b37b0d; font-size:8px; line-height:1.3; }
+.grade-unsaved:empty { display:none; }
+.grade-readonly { font-size:10px; color:#71859c; }
+.grades-grid-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:10px; }
+.grades-grid-footer>p { color:#698096; font-size:9px; line-height:1.6; margin:0; max-width:690px; }
+.grades-grid-footer .records-pagination { gap:7px; }
+.grades-grid-footer .records-pagination button,.grades-grid-footer .records-pagination>span { width:26px; height:26px; font-size:17px; }
+.grades-grid-footer .records-pagination>span { font-size:10px; }
+.grades-summary { display:grid; grid-template-columns:.95fr 1.15fr; border:1px solid #dfeaf4; border-radius:18px; padding:0; margin:0; background:linear-gradient(130deg,#fff,#f5fbff); box-shadow:0 8px 16px #215f7b12; }
+.grades-subject-summary,.grades-distribution { min-width:0; padding:17px 17px 18px; }
+.grades-subject-summary { border-right:1px solid #e1ecf4; }
+.grades-summary .records-title { gap:11px; margin-bottom:18px; }
+.grades-summary .records-title>.ui-icon { color:#007b87; width:24px; height:24px; flex-basis:24px; }
+.grades-summary .records-title h2 { font-size:14px; line-height:1.4; margin:0; font-weight:750; }
+.grade-summary-line { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 10px; border-bottom:1px solid #dfe9f1; font-size:11px; color:#244460; }
+.grade-summary-line b { color:#19314f; white-space:nowrap; }
+.grade-summary-line.is-average { background:linear-gradient(105deg,#d5f9e8,#bfeedd); border-radius:10px; color:#134d41; }
+.grades-distribution-body { display:grid; grid-template-columns:145px minmax(0,1fr); gap:13px; align-items:center; }
+.grade-distribution-ring { display:block; width:145px; height:145px; }
+.grade-ring-count { fill:#16304e; font-size:20px; font-weight:750; }.grade-ring-label { fill:#20476a; font-size:12px; font-weight:550; }
+.grades-distribution-legend>div { display:grid; grid-template-columns:12px minmax(0,1fr) auto; gap:8px; align-items:center; min-height:28px; padding:4px 0; border-bottom:1px solid #e3ecf4; color:#244765; font-size:10px; }
+.grades-distribution-legend>div:last-child { border-bottom:0; }
+.grades-distribution-legend b { font-size:10px; color:#1a385b; white-space:nowrap; }
+.grades-distribution-legend i { width:11px; height:11px; border-radius:3px; background:#1cb64c; }.grades-distribution-legend .grade-band-1 { background:#0d7fff; }.grades-distribution-legend .grade-band-2 { background:#ffbf00; }.grades-distribution-legend .grade-band-3 { background:#fb7212; }.grades-distribution-legend .grade-band-4 { background:#ef2a68; }
+.grades-aside { min-width:0; }
+.grades-aside>.card { padding:16px 14px 13px; border:1px solid #d6e7f1; border-radius:17px; background:linear-gradient(130deg,#ffffff,#f3faff); margin:0 0 13px; box-shadow:0 7px 15px #22617d12; }
+.grades-aside .records-title { gap:10px; margin-bottom:13px; }
+.grades-aside .records-title h2 { font-size:14px; font-weight:750; margin:0; }
+.grades-aside .records-title>.ui-icon { width:23px; height:23px; flex-basis:23px; color:#007988; }
+.grade-student-info dl { margin:0; border-radius:10px; overflow:hidden; background:linear-gradient(110deg,#f1f8ff,#f5fbff); }
+.grade-student-info dl>div { display:grid; grid-template-columns:91px minmax(0,1fr); border-bottom:1px solid #dce9f4; font-size:10px; color:#244d71; line-height:1.5; }
+.grade-student-info dl>div:last-child { border:0; }
+.grade-student-info dt { padding:4px 10px; font-weight:500; border-right:1px solid #e4edf5; }
+.grade-student-info dd { margin:0; padding:4px 10px; font-weight:650; color:#153756; overflow-wrap:anywhere; }
+.student-subject-line { display:grid; grid-template-columns:minmax(0,1fr) 43px auto; gap:7px; align-items:center; padding:6px 1px; border-bottom:1px solid #edf2f7; }
+.student-subject-line button { border:0; background:transparent; text-align:left; padding:0; color:#224b6c; font-size:10px; line-height:1.5; cursor:pointer; }
+.student-subject-line button:hover { text-decoration:underline; }
+.student-subject-line>b { color:#153451; font-size:10px; text-align:right; }
+.grade-small-remark { display:inline-flex; align-items:center; justify-content:center; border-radius:14px; background:#d4f6df; color:#12723b; padding:3px 6px; font-size:8px; font-weight:600; white-space:nowrap; }
+.student-general { display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:8px; align-items:center; padding:11px 9px; margin-top:8px; border-radius:10px; background:linear-gradient(110deg,#d8fce7,#bff2ce); }
+.student-general>b { font-size:10px; color:#174c39; }.student-general>strong { font-size:12px; color:#0a6a22; }
+.grades-import-panel { padding:22px; border:1px solid #c5e0e9; border-radius:17px; }
+.grades-import-panel p { font-size:12px; color:#416883; line-height:1.7; overflow-wrap:anywhere; }
+.grades-import-panel code { font-size:11px; color:#1b6682; }
+.grades-import-check { display:flex; flex-direction:row; align-items:center; gap:9px; }
+.grades-import-check input { width:17px; height:17px; min-height:0; accent-color:#008695; }
+.grades-print-only { display:none; }
+.grades-content>footer { margin-top:20px; }
+@media(min-width:1251px) and (max-width:1550px) {
+ .grades-layout { grid-template-columns:minmax(0,1fr) 280px; gap:15px; }
+ .grades-metrics { gap:11px; }.grades-metrics .record-metric { padding:15px 11px; gap:10px; }
+ .grades-metrics .record-metric-icon { width:42px; height:46px; flex-basis:42px; }
+ .grades-metrics .record-metric strong { font-size:28px; }
+ .grades-filters { gap:9px; flex-wrap:wrap; }
+ .grades-filters .records-select { min-width:125px; }
+ .grade-encoding .records-list-heading { flex-wrap:wrap; gap:15px; padding-bottom:10px; }
+ .grades-summary { grid-template-columns:minmax(0,1fr); }
+ .grades-subject-summary { border:0; border-bottom:1px solid #e2ecf4; }
+ .grades-distribution-body { grid-template-columns:150px minmax(0,1fr); }
+}
+@media(min-width:701px) and (max-width:1250px) {
+ .grades-content { padding:20px; }
+ .grades-layout { grid-template-columns:minmax(0,1fr); }
+ .grades-aside { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+ .grades-aside>.card { margin:0; }
+ .grades-metrics { grid-template-columns:repeat(3,minmax(0,1fr)); }
+ .grades-filters { flex-wrap:wrap; }
+ .grades-filters .records-select { min-width:140px; }
+ .grades-summary { grid-template-columns:minmax(0,1fr); }
+ .grades-subject-summary { border:0; border-bottom:1px solid #dfeaf3; }
+ .grades-distribution-body { grid-template-columns:170px minmax(0,1fr); }
+ .grades-hero-art { width:220px; right:55px; opacity:.55; }
+ .grades-hero-score { width:58px; height:58px; font-size:31px; right:24px; top:37px; opacity:.7; }
+}
+@media(max-width:700px) {
+ .app-main:has(.grades-content) .topbar { height:58px; }
+ .grades-content { padding:19px 15px 24px; }
+ .grades-hero { padding:23px; min-height:176px; margin-bottom:18px; }
+ .grades-hero>div { max-width:100%; }
+ .grades-hero .eyebrow { font-size:9px; letter-spacing:1.7px; }
+ .grades-hero h1 { font-size:29px; margin:10px 0 8px; }
+ .grades-hero p { font-size:12px; max-width:95%; }
+ .grades-hero-art { width:120px; height:100px; opacity:.17; right:15px; bottom:-3px; z-index:0; }
+ .grades-hero-score { width:43px; height:43px; top:auto; bottom:17px; right:13px; font-size:22px; border-width:2px; opacity:.3; z-index:0; }
+ .grades-hero-score sup { font-size:14px; margin-top:-14px; }
+ .grades-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; margin-bottom:18px; }
+ .grades-metrics .record-metric { min-height:107px; padding:15px 11px; gap:10px; }
+ .grades-metrics .record-metric-icon { width:39px; height:42px; flex-basis:39px; }
+ .grades-metrics .record-metric-icon .ui-icon { width:25px; height:25px; }
+ .grades-metrics .record-metric>div>span { font-size:10px; }
+ .grades-metrics .record-metric small { font-size:9px; }
+ .grades-metrics .record-metric strong { font-size:28px; }
+ .grades-layout { grid-template-columns:minmax(0,1fr); gap:18px; }
+ .grades-filters { flex-wrap:wrap; gap:10px; padding:11px; margin-bottom:17px; }
+ .grades-filters .records-select { flex:1 1 calc(50% - 10px); min-width:110px; padding:5px 9px; gap:8px; }
+ .grades-filters .records-select:last-of-type { flex:1 1 calc(50% - 10px); }
+ .grades-filters .records-select .ui-icon { width:18px; height:18px; flex-basis:18px; }
+ .grades-filters>.button { flex:1 1 100%; min-height:38px; padding:10px; }
+ .grade-encoding { padding:15px 11px 13px; }
+ .grade-encoding .records-list-heading { flex-direction:column; align-items:flex-start; gap:13px; padding:0 0 12px; }
+ .grade-encoding .records-title h2 { font-size:17px; }
+ .grade-encoding .records-title p { font-size:10px; }
+ .grade-encoding .records-table-tools { width:100%; justify-content:space-between; gap:7px; }
+ .grade-encoding .records-table-tools .button { padding:8px; gap:5px; font-size:9px; }
+ .grade-encoding .records-table-tools .button .ui-icon { width:14px; height:14px; flex-basis:14px; }
+ .grades-grid-footer { flex-direction:column; align-items:flex-start; }
+ .grades-grid-footer>p { font-size:9px; }.grades-grid-footer .records-pagination { align-self:flex-end; }
+ .grades-summary { grid-template-columns:minmax(0,1fr); }
+ .grades-subject-summary { border:0; border-bottom:1px solid #dfebf4; }
+ .grades-subject-summary,.grades-distribution { padding:17px 15px; }
+ .grades-summary .records-title h2 { font-size:15px; }
+ .grades-summary .records-title { gap:9px; margin-bottom:13px; }
+ .grade-summary-line { font-size:11px; padding:10px 8px; }
+ .grades-distribution-body { grid-template-columns:minmax(0,1fr); gap:7px; }
+ .grade-distribution-ring { width:155px; height:155px; margin:0 auto; }
+ .grades-distribution-legend>div { font-size:10px; padding:7px 0; }
+ .grades-aside { display:grid; grid-template-columns:minmax(0,1fr); gap:17px; }
+ .grades-aside>.card { margin:0; padding:17px; }
+ .grades-aside .records-title h2 { font-size:16px; }
+ .grade-student-info dl>div { font-size:11px; }
+ .grade-student-info dt,.grade-student-info dd { padding:7px 10px; }
+ .student-subject-line { padding:9px 1px; grid-template-columns:minmax(0,1fr) 45px auto; }
+ .student-subject-line button,.student-subject-line>b { font-size:11px; }
+ .grade-small-remark { font-size:8px; }
+ .student-general>b { font-size:11px; }
+ .grades-import-panel { padding:18px; }
+}
+@media print {
+ .grades-content>* { display:none!important; }
+ .grades-content>.grades-print-only { display:block!important; }
+ .grades-print-only h1 { font-size:20px; }.grades-print-only h2 { font-size:16px; }
+ .grades-print-only p { font-size:10px; }
+ .grades-print-only .grades-encoding-table { min-width:0; width:100%; }
+ .grades-print-only .grades-encoding-table th,.grades-print-only .grades-encoding-table td { color:#111; background:#fff; padding:6px; font-size:10px; white-space:normal; }
+ .grades-print-only .grade-final,.grades-print-only .grade-remark { background:none; color:#111; font-size:10px; padding:0; min-width:0; }
+ .grades-print-only .grades-table-wrap { overflow:visible; border:0; }
+}
+
+.grade-correction-link { display:inline-block; margin-top:12px; color:#0b7b8a; font-size:10px; font-weight:600; }

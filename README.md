@@ -153,3 +153,18 @@ Subjects with grade records, correction requests, issued reports or teacher assi
 Subject Assignment uses the existing local teacher access controls. Subject Load counts a subject/class/term once rather than once per assigned student, keeps unknown units explicit, and compares known units with a configurable review threshold. Subject Settings changes defaults for new subjects only; use school-approved units and load limits. Full backups preserve curriculum groups, subject metadata, settings and audit history, while older backups remain supported.
 
 Sources: `browser/curriculum.js` and `browser/curriculum.css`. Run `node tests/browser-curriculum.cjs` for isolated curriculum UI checks, along with the existing academic, records and enrollment checks.
+
+
+### Grade Management dashboard
+
+The browser Grade Management page follows the supplied reference, with live class metrics, year/strand/section/subject filters, per-student grade encoding, save/reset controls, student information, subject grades, summaries, and an accessible final-grade distribution chart. It reuses the existing banner artwork and preserves the school branding and sidebar modules.
+
+Four-period subjects show Q1-Q4; two-period subjects show P1-P2. Complete subject finals use the existing unrounded arithmetic mean and passing threshold of 75. A student's general average requires all configured subjects in that enrollment to be complete. Section/class averages use completed student averages; teacher views label their partial view as Assigned Average. Highest/lowest summaries use encoded period values; distribution bands use completed subject finals. These remain provisional calculations, not an official DepEd transmutation implementation.
+
+Typing previews a final and updates the summaries without writing records. Save writes that row through the existing audited grade handler; changes to existing grades require a reason. Reset on a row reloads its stored values. Filter changes/reset preserve in-session row drafts; reload, sign-out and account changes discard unsaved drafts. Saved values are compared against the form's baseline to reject stale edits rather than overwrite another tab's changes.
+
+Grade-page CSV export and Print Grades include stored values only, across every filtered page. The export can be imported back into the same class/subject. Exact CSV header: `lrn,p1,p2,p3,p4,reason`. Leave unused periods blank. Imports require verified source records and commit once only after every row validates; unknown or unauthorized LRNs, duplicate rows, invalid grades and missing correction reasons save no rows. Use Reports & Exports for the broader enrollment-ID/subject-ID import format.
+
+Local teachers can encode only their assigned enrollment/subject pairs. Students and advisers see authorized records without encoding controls. The student panel links to correction requests, which administrators review through Activity Logs. Browser roles retain the local-only limitations described above.
+
+Sources: `browser/grades.js` and `browser/grades.css`. Run `node tests/browser-grades.cjs` for grade-entry, preview, stale-edit, import/export, role and responsive-layout checks alongside the existing browser suites.
