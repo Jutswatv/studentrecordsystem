@@ -168,3 +168,13 @@ Grade-page CSV export and Print Grades include stored values only, across every 
 Local teachers can encode only their assigned enrollment/subject pairs. Students and advisers see authorized records without encoding controls. The student panel links to correction requests, which administrators review through Activity Logs. Browser roles retain the local-only limitations described above.
 
 Sources: `browser/grades.js` and `browser/grades.css`. Run `node tests/browser-grades.cjs` for grade-entry, preview, stale-edit, import/export, role and responsive-layout checks alongside the existing browser suites.
+
+### Performance Analytics dashboard
+
+The browser Performance Analytics page follows the supplied reference with five live metrics, year/semester, strand, section, subject and period filters, a grade-trend chart, performance distribution, subject comparisons, student rankings and contextual insights. School branding, sidebar modules and local storage are retained. Student details link to the selected enrollment and subject in Grade Management.
+
+Analytics use saved grades only. Incomplete selected records remain unranked and are excluded from averages and distribution, rather than counted as zero. Ranking ties share a rank. Improvement compares adjacent complete student period averages; unavailable comparisons display a dash. Each trend point reports its complete student count because cohorts can differ. Mixed two/four-period subjects use their shared periods. Teacher averages cover assigned subjects and are labeled accordingly; student accounts show only their own authorized records.
+
+Low selected averages or latest selected grades below 75 prompt academic review; missing records appear separately in insights. These are provisional arithmetic summaries, not official grading or transmutation rules. No reference-image sample students or grades are added to user records.
+
+Sources: `browser/analytics.js` and `browser/analytics.css`. Banner artwork and exact generation prompt: `browser/analytics-art.md`. Run `node tests/browser-analytics.cjs` for calculations, filters, ranking, stored-only analytics, account visibility, drill-downs and responsive layouts.

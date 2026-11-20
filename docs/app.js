@@ -22,6 +22,7 @@
   const enrollmentPage=createEnrollmentPage({h,icon,input,select,STRANDS,academic,fullName});
   const curriculumPage=createCurriculumPage({h,icon,input,select,STRANDS,academic,fullName});
   const gradesPage=createGradesPage({h,icon,STRANDS,academic,fullName});
+  const analyticsPage=createAnalyticsPage({h,icon,STRANDS,academic,fullName});
   const identity=data=>academic.member(data,sessionStorage.getItem(SESSION));
   function readStore() {
     const raw = localStorage.getItem(KEY);
@@ -141,6 +142,9 @@
       graduation:'<path d="m2 8 10-5 10 5-10 5Zm4 3v6c4 3 8 3 12 0v-6m4-3v9"/>',
       check:'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
       cross:'<circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/>',
+      trophy:'<path d="M7 3h10v6a5 5 0 0 1-10 0ZM7 5H3v3a4 4 0 0 0 4 4m10-7h4v3a4 4 0 0 1-4 4m-5 2v5m-4 3h8m-8-3h8"/>',
+      bulb:'<path d="M9 18h6m-6 3h6m-3-19V0M4 5 2 3m18 2 2-2M2 12H0m24 0h-2m-16 0a6 6 0 1 1 12 0c0 3-3 4-3 6H9c0-2-3-3-3-6Z"/>',
+      distribution:'<path d="M3 21V8h18v13Zm5-13V3h8v5M7 17v-3m5 3v-6m5 6v-3"/>',
       save:'<path d="M3 3h15l3 3v15H3Zm4 0v7h10V3M7 21v-7h10v7"/>',
       warning:'<path d="m12 3 10 18H2Zm0 6v5m0 3h.01"/>',
       information:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/>',
@@ -166,7 +170,7 @@
     const iconForNav=key=>icon(key);
     const user=identity(data), nav=allNav.filter(([key])=>user.role==='admin'||['grades','analytics','interventions','report-cards','school-years','verification'].includes(key));
     document.title=title+' | LNVS Student Records';
-    app.innerHTML=`<aside class="sidebar premium-sidebar"><a class="brand" href="#dashboard">${schoolBrand()}</a><span class="nav-label">LOCAL WORKSPACE</span><nav>${nav.map(([key,icon,label])=>`<a class="${active===key?'active':''}" ${active===key?'aria-current="page"':''} href="#${key}"><span class="nav-icon">${iconForNav(key)}</span>${label}</a>`).join('')}</nav><div class="sidebar-bottom"><button class="logout" data-action="logout">${icon('logout')} Sign out</button><div class="admin"><b>${h(user.username.slice(0,1).toUpperCase())}</b><span>${h(user.username)}<small>${h(user.role==='admin'?'Local administrator':user.role)}</small></span></div></div></aside><main class="main app-main"><header class="topbar"><span class="breadcrumb">${icon('home')}<span>Browser workspace / <b>${h(title)}</b></span></span><span class="badge">Grade 12</span></header><div class="content ${active==='dashboard'?'dashboard-content':active==='students'?'records-content':active==='enrollment'?'enrollment-content':active==='curriculum'?'curriculum-content':active==='grades'?'grades-content':''}"><div class="page-heading ${active==='dashboard'?'dashboard-hero':active==='students'?'records-hero':active==='enrollment'?'enrollment-hero':active==='curriculum'?'curriculum-hero':active==='grades'?'grades-hero':''}"><div><span class="eyebrow">${active==='enrollment'?'ENROLLMENT MANAGEMENT':active==='curriculum'?'CURRICULUM MANAGEMENT':active==='grades'?'GRADE MANAGEMENT':'STUDENT RECORD MANAGEMENT'}</span><h1>${h(title)}</h1><p>${active==='students'?'Manage, view, update, and organize Grade 12 student information and academic records.':active==='enrollment'?'Manage student enrollment, sectioning, and academic registration for Grade 12.':active==='curriculum'?'Manage the curriculum, strands, and subject offerings for Grade 12.':active==='grades'?'Encode, compute, validate, and manage Grade 12 student grades per subject and grading period.':'Libertad National Vocational School &middot; Your local Grade 12 workspace'}</p></div>${active==='students'?'<img class="records-hero-art" src="assets/student-records-hero.png" alt="" aria-hidden="true">':active==='enrollment'?'<img class="enrollment-hero-art" src="assets/enrollment-hero.png" alt="" aria-hidden="true">':active==='curriculum'?'<img class="curriculum-hero-art" src="assets/enrollment-hero.png" alt="" aria-hidden="true">':active==='grades'?'<img class="grades-hero-art" src="assets/enrollment-hero.png" alt="" aria-hidden="true"><span class="grades-hero-score" aria-hidden="true">A<sup>+</sup></span>':action}${active==='dashboard'?'<span class="hero-dots" aria-hidden="true"></span>':''}</div>${body}<footer>LNVS Gradebook <span>Browser storage &middot; No server database</span></footer></div></main>`;
+    app.innerHTML=`<aside class="sidebar premium-sidebar"><a class="brand" href="#dashboard">${schoolBrand()}</a><span class="nav-label">LOCAL WORKSPACE</span><nav>${nav.map(([key,icon,label])=>`<a class="${active===key?'active':''}" ${active===key?'aria-current="page"':''} href="#${key}"><span class="nav-icon">${iconForNav(key)}</span>${label}</a>`).join('')}</nav><div class="sidebar-bottom"><button class="logout" data-action="logout">${icon('logout')} Sign out</button><div class="admin"><b>${h(user.username.slice(0,1).toUpperCase())}</b><span>${h(user.username)}<small>${h(user.role==='admin'?'Local administrator':user.role)}</small></span></div></div></aside><main class="main app-main"><header class="topbar"><span class="breadcrumb">${icon('home')}<span>Browser workspace / <b>${h(title)}</b></span></span><span class="badge">Grade 12</span></header><div class="content ${active==='dashboard'?'dashboard-content':active==='students'?'records-content':active==='enrollment'?'enrollment-content':active==='curriculum'?'curriculum-content':active==='grades'?'grades-content':active==='analytics'?'analytics-content':''}"><div class="page-heading ${active==='dashboard'?'dashboard-hero':active==='students'?'records-hero':active==='enrollment'?'enrollment-hero':active==='curriculum'?'curriculum-hero':active==='grades'?'grades-hero':active==='analytics'?'analytics-hero':''}"><div><span class="eyebrow">${active==='enrollment'?'ENROLLMENT MANAGEMENT':active==='curriculum'?'CURRICULUM MANAGEMENT':active==='grades'?'GRADE MANAGEMENT':active==='analytics'?'PERFORMANCE ANALYTICS':'STUDENT RECORD MANAGEMENT'}</span><h1>${h(title)}</h1><p>${active==='students'?'Manage, view, update, and organize Grade 12 student information and academic records.':active==='enrollment'?'Manage student enrollment, sectioning, and academic registration for Grade 12.':active==='curriculum'?'Manage the curriculum, strands, and subject offerings for Grade 12.':active==='grades'?'Encode, compute, validate, and manage Grade 12 student grades per subject and grading period.':active==='analytics'?'Analyze student performance, grade trends, and academic standing for Grade 12.':'Libertad National Vocational School &middot; Your local Grade 12 workspace'}</p></div>${active==='students'?'<img class="records-hero-art" src="assets/student-records-hero.png" alt="" aria-hidden="true">':active==='enrollment'?'<img class="enrollment-hero-art" src="assets/enrollment-hero.png" alt="" aria-hidden="true">':active==='curriculum'?'<img class="curriculum-hero-art" src="assets/enrollment-hero.png" alt="" aria-hidden="true">':active==='grades'?'<img class="grades-hero-art" src="assets/enrollment-hero.png" alt="" aria-hidden="true"><span class="grades-hero-score" aria-hidden="true">A<sup>+</sup></span>':active==='analytics'?'<img class="analytics-hero-art" src="assets/analytics-hero.png" alt="" aria-hidden="true">':action}${active==='dashboard'?'<span class="hero-dots" aria-hidden="true"></span>':''}</div>${body}<footer>LNVS Gradebook <span>Browser storage &middot; No server database</span></footer></div></main>`;
   }
   function table(students,grades=false) {
     if (!students.length) return '<div class="empty"><h3>No students found</h3><p>Register a student or adjust your filters.</p><a class="button secondary" href="#register">Register a student</a></div>';
@@ -235,6 +239,7 @@
       if(name==='enrollment'){layout(data,'Enrollment','enrollment',enrollmentPage.view(data,user,params));return;}
       if(name==='curriculum'){layout(data,'Curriculum & Subjects','curriculum',curriculumPage.view(data,user,params));return;}
       if(name==='grades'){layout(data,'Grade Management','grades',gradesPage.view(data,user,params));return;}
+      if(name==='analytics'){layout(data,'Performance Analytics','analytics',analyticsPage.view(data,user,params));return;}
       if(sectionTitles[name]) {layout(data,sectionTitles[name],name,academic.sectionView(data,user,params,name));app.querySelector('.content').classList.add('academic-browser');return;}
       if(user.role!=='admin') {go('grades');return;}
       const student=data.students.find(s=>s.id===params.get('id'));
@@ -305,6 +310,7 @@
   }
   app.addEventListener('input',event=>{if(event.target.matches('[data-grade-period],[data-grade-reason]')){const data=read();if(logged(data))gradesPage.inputEvent(event.target,app,data,identity(data),route().params);return;}if(event.target.matches('form[data-form="enrollment-filter"] [name="search"]')){clearTimeout(searchTimer);const position=event.target.selectionStart;searchTimer=setTimeout(()=>{if(route().name!=='enrollment')return;const form=app.querySelector('form[data-form="enrollment-filter"]');if(!form)return;const data=read();if(!logged(data))return;enrollmentPage.filter(new FormData(form),data);render();const field=app.querySelector('form[data-form="enrollment-filter"] [name="search"]');field.focus({preventScroll:true});field.setSelectionRange(position,position);},220);return;}if(event.target.matches('.records-search input')){clearTimeout(searchTimer);const position=event.target.selectionStart;searchTimer=setTimeout(()=>{if(route().name!=='students')return;const form=app.querySelector('.records-toolbar');if(!form)return;updateRecordFilters(form);const field=app.querySelector('.records-search input');field.focus({preventScroll:true});field.setSelectionRange(position,position);},220);}});
   app.addEventListener('change',event=>{
+    if(event.target.matches('form[data-form="analytics-filter"] select')){analyticsPage.filter(new FormData(event.target.closest('form')));render();return;}
     if(event.target.matches('form[data-form="grades-filter"] select')){gradesPage.filter(new FormData(event.target.closest('form')));render();return;}
     if(event.target.matches('form[data-form="curriculum-filter"] select')){const data=read();if(logged(data)&&identity(data).role==='admin'){curriculumPage.filter(new FormData(event.target.closest('form')));render();}return;}
     if(event.target.matches('form[data-form="enrollment-filter"] select')){clearTimeout(searchTimer);const data=read();if(logged(data)){enrollmentPage.filter(new FormData(event.target.closest('form')),data);render();}return;}
@@ -333,7 +339,7 @@
         if(store.accounts.some(account=>[account.data.admin,...(account.data.academy?.members||[])].some(m=>m.username.toLowerCase()===username.toLowerCase()))) throw new Error('That username was just registered in another tab. Choose another username or log in.');
         data=blank(); data.admin=admin;
         const id=crypto.randomUUID(); store.accounts.push({id,data}); saveStore(store);
-        sessionStorage.setItem(ACTIVE,id); sessionStorage.setItem(SESSION,admin.hash); gradesPage.reset(); curriculumPage.reset(); enrollmentPage.reset(); overviewYear=''; recordsPage=1; recordsSelection.clear(); filters={search:'',strand:'',year:'',section:''}; go('dashboard'); render(); await popup('Account created','Your local account is ready with an empty student workspace.'); return;
+        sessionStorage.setItem(ACTIVE,id); sessionStorage.setItem(SESSION,admin.hash); analyticsPage.reset(); gradesPage.reset(); curriculumPage.reset(); enrollmentPage.reset(); overviewYear=''; recordsPage=1; recordsSelection.clear(); filters={search:'',strand:'',year:'',section:''}; go('dashboard'); render(); await popup('Account created','Your local account is ready with an empty student workspace.'); return;
       }
       if(kind==='login') {
         const username=String(fd.get('username')).trim().toLowerCase();
@@ -342,10 +348,11 @@
         if(!found || await passwordHash(String(fd.get('password')),found.user.salt)!==found.user.hash) throw new Error('Invalid username or password.');
         const latest=readStore().accounts.find(item=>item.id===found.account.id);
         if(!latest||![latest.data.admin,...(latest.data.academy?.members||[])].some(m=>m.hash===found.user.hash&&m.active!==false))throw new Error('This account changed in another tab. Try again.');
-        sessionStorage.setItem(ACTIVE,found.account.id); sessionStorage.setItem(SESSION,found.user.hash); gradesPage.reset(); curriculumPage.reset(); enrollmentPage.reset(); overviewYear=''; recordsPage=1; recordsSelection.clear(); filters={search:'',strand:'',year:'',section:''}; go(found.user.role?'grades':'dashboard'); render(); await popup('Login successful','Welcome back to your local student workspace.'); return;
+        sessionStorage.setItem(ACTIVE,found.account.id); sessionStorage.setItem(SESSION,found.user.hash); analyticsPage.reset(); gradesPage.reset(); curriculumPage.reset(); enrollmentPage.reset(); overviewYear=''; recordsPage=1; recordsSelection.clear(); filters={search:'',strand:'',year:'',section:''}; go(found.user.role?'grades':'dashboard'); render(); await popup('Login successful','Welcome back to your local student workspace.'); return;
       }
       if(!logged(data)) throw new Error('Please sign in before making changes.');
       const user=identity(data);
+      if(kind==='analytics-filter'){analyticsPage.filter(fd);render();return;}
       if(kind==='grades-filter'){gradesPage.filter(fd);render();return;}
       if(kind==='academic-grade'&&form.hasAttribute('data-grade-editor')){const original=localStorage.getItem(KEY);await gradesPage.save(data,user,fd,route().params);if(localStorage.getItem(KEY)!==original)throw Error('Another tab changed the workspace. Reset the row and try again.');write(data);gradesPage.didSave(fd);render();await popup('Grades saved','Changes saved to this local workspace with an audit event.');return;}
       if(kind==='grades-import'){const original=localStorage.getItem(KEY),keys=await gradesPage.importCSV(data,user,fd,route().params);if(localStorage.getItem(KEY)!==original)throw Error('Another tab changed the workspace. No grades were imported.');write(data);gradesPage.didImport(keys);go('grades');render();await popup('Grades imported',keys.length+' grade records were verified and saved together.');return;}
@@ -400,9 +407,14 @@
     try {
       const data=read(); if(!logged(data)) {render(); return;}
       const action=button.dataset.action;
-      if(identity(data).role!=='admin'&&!['logout','print','enrollment-export','enrollment-reset','enrollment-page','grades-export','grades-student','grades-subject','grades-page','grades-reset-row','grades-reset-filters'].includes(action))throw new Error('Administrator access required.');
-      if(action==='logout') { if(!await popup('Sign out?','Are you sure you want to sign out of your local account?','warning',true,'Yes, sign out','No, stay signed in')) return; sessionStorage.removeItem(SESSION); sessionStorage.removeItem(ACTIVE); gradesPage.reset(); curriculumPage.reset(); enrollmentPage.reset(); overviewYear=''; recordsPage=1; recordsSelection.clear(); filters={search:'',strand:'',year:'',section:''}; go('login'); render(); await popup('Logout successful','You have been signed out. Your saved records remain on this browser.'); }
-      else if(action==='reset-filters') {gradesPage.reset(); curriculumPage.reset(); enrollmentPage.reset(); overviewYear=''; recordsPage=1; recordsSelection.clear(); filters={search:'',strand:'',year:'',section:''}; render();}
+      if(identity(data).role!=='admin'&&!['logout','print','enrollment-export','enrollment-reset','enrollment-page','grades-export','grades-student','grades-subject','grades-page','grades-reset-row','grades-reset-filters','analytics-reset','analytics-page','analytics-student','analytics-subject','analytics-close-detail'].includes(action))throw new Error('Administrator access required.');
+      if(action==='logout') { if(!await popup('Sign out?','Are you sure you want to sign out of your local account?','warning',true,'Yes, sign out','No, stay signed in')) return; sessionStorage.removeItem(SESSION); sessionStorage.removeItem(ACTIVE); analyticsPage.reset(); gradesPage.reset(); curriculumPage.reset(); enrollmentPage.reset(); overviewYear=''; recordsPage=1; recordsSelection.clear(); filters={search:'',strand:'',year:'',section:''}; go('login'); render(); await popup('Logout successful','You have been signed out. Your saved records remain on this browser.'); }
+      else if(action==='reset-filters') {analyticsPage.reset(); gradesPage.reset(); curriculumPage.reset(); enrollmentPage.reset(); overviewYear=''; recordsPage=1; recordsSelection.clear(); filters={search:'',strand:'',year:'',section:''}; render();}
+      else if(action==='analytics-reset'){analyticsPage.reset();go('analytics');render();}
+      else if(action==='analytics-page'){analyticsPage.setPage(button.dataset.page);render();}
+      else if(action==='analytics-student'){analyticsPage.setStudent(button.dataset.id);render();}
+      else if(action==='analytics-subject'){analyticsPage.setSubject(button.dataset.id);render();}
+      else if(action==='analytics-close-detail'){analyticsPage.closeDetail();render();}
       else if(action==='grades-reset-filters'){gradesPage.resetFilters();go('grades');render();}
       else if(action==='grades-reset-row'){gradesPage.resetRow(button.dataset.enrollment,button.dataset.subject);render();}
       else if(action==='grades-student'){gradesPage.setStudent(button.dataset.id);render();}
@@ -430,7 +442,7 @@
       }
     } catch(error) {await popup('Action unavailable',error.message,'error');}
   });
-  window.addEventListener('hashchange',()=>{gradesPage.resetFocus();render(); window.scrollTo(0,0);});
+  window.addEventListener('hashchange',()=>{analyticsPage.resetFocus();gradesPage.resetFocus();render(); window.scrollTo(0,0);});
   window.addEventListener('storage',event=>{
     if(event.key===KEY) {
       try { if(!logged(read())) {render(); return;} } catch(_) {render(); return;}

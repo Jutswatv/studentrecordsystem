@@ -10,7 +10,7 @@ window.createGradesPage=({h,icon,STRANDS,academic,fullName})=>{
   const remarks=avg=>avg===null?'Incomplete':avg>=75?'Passed':'Below Passing';
   function context(data,u,params){
     const visible=academic.visible(data,u).filter(e=>e.grade_level===12),focus=visible.find(e=>e.id===params.get('enrollment'));
-    if(focus&&lastFocus!==focus.id){filters={year:focus.school_year,strand:focus.strand,section:focus.section,subject:'',student:focus.id};lastFocus=focus.id;}
+    if(focus&&lastFocus!==focus.id){filters={year:focus.school_year,strand:focus.strand,section:focus.section,subject:params.get('subject')||'',student:focus.id};lastFocus=focus.id;}
     const years=[...new Set(visible.map(e=>e.school_year))].sort().reverse();if(!years.includes(filters.year))filters.year=years[0]||'';
     const inYear=visible.filter(e=>e.school_year===filters.year),strands=STRANDS.filter(st=>inYear.some(e=>e.strand===st));if(!strands.includes(filters.strand))filters.strand=strands[0]||'';
     const inStrand=inYear.filter(e=>e.strand===filters.strand),sections=[...new Set(inStrand.map(e=>e.section))].sort();if(filters.section===null||filters.section&&!sections.includes(filters.section))filters.section=sections[0]||'';
