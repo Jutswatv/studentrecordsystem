@@ -124,3 +124,19 @@ The browser Student Records page matches the supplied overview reference, using 
 Use the row checkboxes to export or print selected students. With no selection, export/print includes all filtered results across pages. The School Year filter can show historical enrollment details and their grades. Changing strand/year clears an incompatible section filter. Import shortcuts open the existing verified CSV import module; backups include the full academic workspace.
 
 Styles: `browser/records.css`. Banner artwork and generation prompt: `browser/records-art.md`. Run the isolated UI checks with `node tests/browser-records.cjs` in addition to `node tests/browser.cjs`.
+
+
+### Enrollment management dashboard
+
+The browser Enrollment page follows the supplied Grade 12 reference, with status cards, an enrollment list, progress ring, strand chart/legend, quick actions and recent enrollments. All values come from the filtered local records. The list shows one latest matching Grade 12 enrollment per permanent student identity; a student with no matching Grade 12 enrollment is shown as Not Enrolled. Older enrollment records without an explicit status remain Enrolled for compatibility. Grade 11 identities can be enrolled in Grade 12 without creating duplicate students.
+
+- Enroll Student adds a scoped year/semester enrollment; duplicate terms are rejected.
+- Re-enroll reuses an existing student identity for another semester/year. Selecting one row prefills that identity.
+- Edit Enrollment corrects section, status and date with a reason; curriculum scope and existing grades stay linked.
+- Sectioning updates selected enrollments together and audits each section change.
+- The cancel action marks the enrollment Not Enrolled and retains student identity, grades, reports and academic history.
+- Export List exports selected rows, or all filtered rows when none are selected. Search and year/strand/section filters work together.
+
+For older records without an explicitly entered enrollment date, the list displays the record creation/import date. New enrollment forms allow an explicit date and require it for Enrolled status. Dates display in Asia/Manila time. Statuses and entered dates are included in full backups. Local role controls retain the same browser-only limitations described above.
+
+Sources: `browser/enrollment.js` and `browser/enrollment.css`. Banner artwork and exact prompt: `browser/enrollment-art.md`. Run `node tests/browser-enrollment.cjs` for isolated enrollment checks.
