@@ -1,0 +1,22 @@
+'use strict';
+window.createSchoolStructure=({STRANDS})=>{
+  const key=v=>String(v||'').trim().toLocaleLowerCase(),yearValid=y=>{const m=/^(\d{4})-(\d{4})$/.exec(y);return !!m&&+m[2]===+m[1]+1;};
+  const dateValid=s=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;const d=new Date(s+'T00:00:00Z');return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===s;};
+  const matches=(s,e)=>e.grade_level===12&&s.school_year===e.school_year&&s.strand===e.strand&&key(s.name)===key(e.section);
+  function check(data,e,old=null){
+    if(e.grade_level!==12)return;
+    if(old&&['school_year','strand','section','grade_level'].every(k=>e[k]===old[k])&&!(old.status&&old.status!=='Enrolled'&&(!e.status||e.status==='Enrolled')))return;
+    if((data.academy.schoolYears||[]).some(y=>y.year===e.school_year&&y.archived))throw Error('This school year is archived. Reactivate it before adding or moving enrollments.');
+    if((data.academy.strandOfferings||[]).some(s=>s.school_year===e.school_year&&s.strand===e.strand&&!s.active))throw Error('This strand is not offered in that school year. Enable it in School Years & Sections.');
+    if((data.academy.sections||[]).some(s=>matches(s,e)&&!s.active))throw Error('This section is inactive. Choose an active section or reactivate it first.');
+  }
+  function sync(data){const a=data.academy,sections=a.sections||[],desired=[];for(const s of sections){const adviser=a.members.find(m=>m.id===s.adviser_id&&m.role==='adviser'&&m.active!==false);if(adviser)for(const e of a.enrollments.filter(e=>matches(s,e)))desired.push({member:adviser.id,enrollment_id:e.id,section_id:s.id});}
+    for(const m of a.members){m.assignments=m.assignments.filter(x=>!x.section_id||desired.some(d=>d.member===m.id&&d.enrollment_id===x.enrollment_id&&d.section_id===x.section_id));for(const d of desired.filter(d=>d.member===m.id))if(!m.assignments.some(x=>x.enrollment_id===d.enrollment_id&&x.subject_id==='*'))m.assignments.push({enrollment_id:d.enrollment_id,subject_id:'*',section_id:d.section_id});}
+  }
+  function validate(a){
+    if(a.schoolYears!==undefined){if(!Array.isArray(a.schoolYears))throw Error('Invalid school year settings.');const years=new Set();for(const y of a.schoolYears){if(!y||!yearValid(y.year)||years.has(y.year)||typeof y.active!=='boolean'||typeof y.archived!=='boolean'||y.active&&y.archived||typeof y.start_date!=='string'||typeof y.end_date!=='string'||!!y.start_date!==!!y.end_date||y.start_date&&(!dateValid(y.start_date)||!dateValid(y.end_date)||y.start_date>y.end_date||y.start_date.slice(0,4)<y.year.slice(0,4)||y.end_date.slice(0,4)>y.year.slice(5)))throw Error('Invalid school year settings.');years.add(y.year);}if(a.schoolYears.filter(y=>y.active).length>1)throw Error('Only one school year can be active.');}
+    if(a.strandOfferings!==undefined){if(!Array.isArray(a.strandOfferings))throw Error('Invalid strand offerings.');const keys=new Set();for(const s of a.strandOfferings){const id=s?.school_year+'|'+s?.strand;if(!s||!yearValid(s.school_year)||!STRANDS.includes(s.strand)||keys.has(id)||typeof s.label!=='string'||!s.label||s.label.length>100||typeof s.description!=='string'||s.description.length>500||typeof s.active!=='boolean')throw Error('Invalid strand offerings.');keys.add(id);}}
+    if(a.sections!==undefined){if(!Array.isArray(a.sections))throw Error('Invalid section settings.');const ids=new Set(),keys=new Set();for(const s of a.sections){if(!s||typeof s.id!=='string'||!s.id||ids.has(s.id)||typeof s.name!=='string'||!s.name.trim()||s.name.length>100||!yearValid(s.school_year)||!STRANDS.includes(s.strand)||s.grade_level!==12||typeof s.active!=='boolean'||s.adviser_id!==null&&!a.members.some(m=>m.id===s.adviser_id&&m.role==='adviser'))throw Error('Invalid section settings.');const id=JSON.stringify([s.school_year,s.strand,key(s.name)]);if(keys.has(id))throw Error('Duplicate section settings.');keys.add(id);ids.add(s.id);}}
+  }
+  return {check,sync,validate,matches,key,yearValid,dateValid};
+};
