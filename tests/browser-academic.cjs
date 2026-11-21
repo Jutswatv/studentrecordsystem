@@ -43,10 +43,10 @@ async function run() {
   for(const role of ['teacher','adviser','student'])await save('member',{username:role+'test',password:'Test-password-123',role,student_id:sid});
   state=await data();await save('assign',{user_id:state.academy.members.find(m=>m.role==='teacher').id,enrollment_id:eid,subject_id:cid});
   await save('intervention',{note:'Review next week',status:'Open'});
-  await save('issue');const ref=(await data()).academy.reports[0].reference;assert.equal(await page.locator('.local-report').count(),1);
+  await save('issue');const ref=(await data()).academy.reports[0].reference;assert.equal(await page.locator('.report-preview-paper .report-paper').count(),1);
   await open('academic?enrollment='+encodeURIComponent(eid));await save('grade',{p0:90,p1:90,reason:'New correction'});
-  await open('academic?report='+ref);assert((await page.locator('.local-report').textContent()).includes('82.50'),'Issued report must remain frozen');
-  await page.emulateMedia({media:'print'});assert.equal(await page.locator('.local-report').isVisible(),true);assert.equal(await page.locator('.content > .no-print').first().isVisible(),false);await page.emulateMedia({media:'screen'});
+  await open('academic?report='+ref);assert((await page.locator('.report-preview-paper').textContent()).includes('82.50'),'Issued report must remain frozen');
+  await page.emulateMedia({media:'print'});assert.equal(await page.locator('.report-print-area').isVisible(),true);assert.equal(await page.locator('.report-layout').isVisible(),false);await page.emulateMedia({media:'screen'});
   fs.mkdirSync(path.join(__dirname,'../.artifacts'),{recursive:true});await page.screenshot({path:path.join(__dirname,'../.artifacts/academic-browser-desktop.png'),fullPage:true});
   await login('teachertest');await open('academic?enrollment='+encodeURIComponent(eid));assert.equal(await page.locator('form[data-form="academic-curriculum"]').count(),0);assert.equal(await page.locator('form[data-form="academic-grade"]').count(),1);await save('grade',{p0:72,p1:84,reason:'Teacher source record'});
   await login('studenttest');await open('academic?enrollment='+encodeURIComponent(eid));assert.equal(await page.locator('form[data-form="academic-grade"]').count(),0);await save('request',{subject_id:cid,period:1,proposed:80,reason:'Please check original'});
@@ -62,8 +62,8 @@ async function run() {
   assert.deepEqual(await page.locator('.sidebar nav a').allTextContents().then(labels=>labels.map(label=>label.trim())),sidebarLabels);
   assert.equal(await page.locator('.sidebar nav a').filter({hasText:'Academic workspace'}).count(),0);
   assert((await page.locator('.sidebar .school-name').textContent()).includes('Libertad National Vocational School'),'Original branding must stay unchanged');
-  const modules=[['enrollment','Enrollment',null],['curriculum','Curriculum & Subjects',null],['grades','Grade Management','grade'],['analytics','Performance Analytics',null],['interventions','Academic Interventions',null],['report-cards','Report Cards','issue'],['school-years','School Years & Sections',null],['teachers','Teachers & Advisers','member'],['verification','Record Verification','verify'],['logs','Activity Logs',null],['reports','Reports & Exports','import'],['settings','System Settings',null]];
-  for(const [route,title,kind] of modules){await open(route+'?enrollment='+encodeURIComponent(eid));assert.equal(await page.locator('.page-heading h1').textContent(),title);assert.equal(await page.locator('.sidebar nav a[aria-current="page"]').textContent().then(t=>t.trim()),title);if(kind)assert.equal(await page.locator(`form[data-form="academic-${kind}"]`).count(),1);if(route==='interventions'){await page.locator('.intervention-filters [data-action="intervention-create"]').click();assert.equal(await page.locator('form[data-form="intervention-save"]').count(),1);}if(route!=='curriculum')assert.equal(await page.locator('form[data-form="academic-curriculum"]').count(),0);}
+  const modules=[['enrollment','Enrollment',null],['curriculum','Curriculum & Subjects',null],['grades','Grade Management','grade'],['analytics','Performance Analytics',null],['interventions','Academic Interventions',null],['report-cards','Report Cards',null],['school-years','School Years & Sections',null],['teachers','Teachers & Advisers','member'],['verification','Record Verification','verify'],['logs','Activity Logs',null],['reports','Reports & Exports','import'],['settings','System Settings',null]];
+  for(const [route,title,kind] of modules){await open(route+'?enrollment='+encodeURIComponent(eid));assert.equal(await page.locator('.page-heading h1').textContent(),title);assert.equal(await page.locator('.sidebar nav a[aria-current="page"]').textContent().then(t=>t.trim()),title);if(kind)assert.equal(await page.locator(`form[data-form="academic-${kind}"]`).count(),1);if(route==='report-cards')assert.equal(await page.locator('form[data-form="report-generate"]').count(),1);if(route==='interventions'){await page.locator('.intervention-filters [data-action="intervention-create"]').click();assert.equal(await page.locator('form[data-form="intervention-save"]').count(),1);}if(route!=='curriculum')assert.equal(await page.locator('form[data-form="academic-curriculum"]').count(),0);}
   await page.setViewportSize({width:1672,height:941});await open('dashboard');
   assert.equal(await page.locator('.metric-card').count(),4);
   assert.equal(await page.locator('.metric-card strong').first().textContent(),'1');
@@ -85,6 +85,6 @@ async function run() {
   assert((await legacyPage.locator('body').textContent()).includes('Legacy Subject'));
   await legacyContext.close();
   assert.deepEqual(errors,[]);console.log('PASS: local curriculum, scoped grades, correction reasons, enrollment history, role login and assignment, interventions, frozen reports, print layout, correction review, atomic imports, full backup/restore, mobile render, no runtime errors');
- } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
+ } catch(error) {console.error(error);throw error;} finally {await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
 }
 run().catch(e=>{console.error(e);server.close();process.exitCode=1;});
