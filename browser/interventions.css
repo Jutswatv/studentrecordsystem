@@ -1,0 +1,61 @@
+/* Academic Interventions dashboard, retaining the shared school branding. */
+.intervention-hero .intervention-hero-art { position:absolute; width:290px; height:145px; right:15px; bottom:-6px; object-fit:contain; pointer-events:none; }
+.intervention-hero>div { max-width:80%; }
+.intervention-filters { padding:10px; gap:12px; }
+.intervention-filters>.button[data-action="intervention-create"] { background:linear-gradient(#009ca4,#006777); color:#fff; border-color:#008a98; white-space:nowrap; }
+.intervention-filter-note { background:#fff5da; color:#805900; padding:10px 16px; border-radius:10px; font-size:12px; }
+.intervention-filter-note button,.intervention-detail-links button,.intervention-history article>button { background:none; border:0; padding:0; color:#007d8a; cursor:pointer; text-decoration:underline; font:inherit; }
+.intervention-main-grid { display:grid; grid-template-columns:1.05fr 1fr; gap:16px; margin-bottom:16px; align-items:start; }
+.intervention-bottom-grid { display:grid; grid-template-columns:1.03fr 1fr 1.08fr; gap:16px; }
+.intervention-main-grid>.card,.intervention-bottom-grid>.card,.intervention-editor,.intervention-history,.intervention-report { min-width:0; border:1px solid #d2e5f2; border-radius:18px; padding:18px; background:linear-gradient(115deg,#fff,#f6fbff); box-shadow:0 5px 14px #1646680c; }
+.intervention-content .records-title { margin-bottom:17px; gap:11px; }
+.intervention-content .records-title h2 { color:#122f52; font-size:17px; font-weight:750; margin:0 0 3px; }
+.intervention-content .records-title p { font-size:11px; color:#4b6b8a; line-height:1.5; margin:0; }
+.intervention-content .record-title-icon { width:42px; height:43px; flex-basis:42px; border-radius:50%; color:#008c96; background:#e1f6f5; display:grid; place-items:center; }
+.intervention-content .record-title-icon .ui-icon { width:27px; height:27px; }
+.intervention-table-wrap { max-width:100%; border:1px solid #e0ebf3; border-radius:11px; overflow:auto; }
+.intervention-table { min-width:620px; }
+.intervention-table th,.intervention-table td { padding:10px 7px; }
+.intervention-table td small { font-size:9px; display:block; color:#6b879e; margin-top:4px; }
+.intervention-table tbody tr.is-selected { background:#effbfc; }
+.intervention-table .record-action { width:29px; height:31px; padding:6px; border-radius:7px; }
+.intervention-table .record-action .ui-icon { width:17px; height:17px; }
+.intervention-table .record-actions { gap:5px; }
+.intervention-students .records-list-footer { font-size:11px; padding:13px 2px 0; }
+.intervention-students .records-pagination button,.intervention-students .records-pagination>span { width:28px; height:28px; }
+.intervention-badge { display:inline-flex; justify-content:center; padding:4px 10px; border-radius:15px; font-size:10px; line-height:1.4; font-weight:700; white-space:nowrap; }
+.intervention-badge.state-0 { background:#dceffc; color:#126eb5; }.intervention-badge.state-1 { background:#ffe3ec; color:#b83160; }.intervention-badge.state-2 { background:#fff0c6; color:#8d6500; }.intervention-badge.state-3 { background:#ddf5e5; color:#127333; }
+.intervention-badge.risk-low { background:#ffe1e8; color:#b33255; }.intervention-badge.risk-missing { background:#fff1d0; color:#946800; }.intervention-badge.risk-clear { background:#d6f6e0; color:#197138; }
+.intervention-detail-grid { display:grid; grid-template-columns:1.25fr 1fr; gap:16px; }
+.intervention-details dl { margin:0; font-size:11px; }
+.intervention-details dl>div { display:grid; grid-template-columns:1fr 1.2fr; padding:7px 0; border-bottom:1px solid #e1ecf4; gap:9px; }
+.intervention-details dt { color:#24465f; }.intervention-details dd { margin:0; color:#14354e; font-weight:700; overflow-wrap:anywhere; }
+.intervention-actions-list { padding-left:15px; border-left:1px solid #c8ddec; font-size:11px; }
+.intervention-actions-list h3 { font-size:12px; margin:0 0 9px; color:#183957; }
+.intervention-actions-list>div { display:flex; gap:8px; margin:9px 0; align-items:center; }
+.intervention-check { width:15px; height:15px; flex:0 0 15px; border:1.5px solid #7c9bb2; border-radius:3px; color:#fff; display:grid; place-items:center; line-height:1; }.intervention-check.checked { background:#009695; border-color:#009695; }
+.intervention-saved-note { padding:12px; border-radius:10px; background:#edf8fa; font-size:11px; color:#365f75; margin:14px 0 0; line-height:1.6; overflow-wrap:anywhere; }
+.intervention-saved-note p { white-space:pre-wrap; margin:5px 0; }.intervention-saved-note small { color:#577e93; }
+.intervention-detail-links { display:flex; flex-wrap:wrap; gap:13px; font-size:11px; padding-top:14px; }
+.intervention-status-body { display:grid; grid-template-columns:145px minmax(0,1fr); gap:12px; align-items:center; min-height:180px; }
+.intervention-status-body>svg { width:145px; height:145px; }
+.intervention-legend { display:grid; grid-template-columns:10px minmax(65px,1fr) auto; gap:8px; font-size:10px; padding:8px 0; border-bottom:1px solid #e3edf4; align-items:center; }
+.intervention-legend i { width:10px; height:10px; border-radius:3px; background:#25bb4c; }.intervention-legend i.state-dot-1 { background:#f33770; }.intervention-legend i.state-dot-2 { background:#ffbd00; }.intervention-legend i.state-dot-3 { background:#0785f4; }
+.intervention-legend b { white-space:nowrap; }
+.intervention-progress-chart { display:block; width:100%; height:180px; overflow:visible; }
+.intervention-progress .analytics-chart-note { font-size:9px; }
+.intervention-quick-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; }
+.intervention-quick-grid button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-width:0; padding:13px 7px; min-height:84px; border:1px solid #bce8ed; border-radius:12px; color:#13445c; background:linear-gradient(#f1fcfc,#e1f6f6); font-size:10px; font-weight:650; cursor:pointer; }
+.intervention-quick-grid .ui-icon { width:26px; height:26px; color:#009da1; }.intervention-quick-grid .intervention-quick-1 { background:#f5efff; border-color:#e2d7ff; }.intervention-quick-1 .ui-icon { color:#7836e9; }.intervention-quick-grid .intervention-quick-2 { background:#edf5ff; border-color:#cde2ff; }.intervention-quick-2 .ui-icon { color:#087fff; }.intervention-quick-grid .intervention-quick-3 { background:#fff8e6; border-color:#ffe3aa; }.intervention-quick-3 .ui-icon { color:#eea000; }.intervention-quick-grid .intervention-quick-4 { background:#fff0f8; border-color:#f8d6e8; }.intervention-quick-4 .ui-icon { color:#ed347f; }.intervention-quick-grid .intervention-quick-5 { background:#e9f9ef; border-color:#c7ecd3; }.intervention-quick-5 .ui-icon { color:#0cac4c; }
+.intervention-editor,.intervention-history { margin-bottom:16px; scroll-margin-top:20px; }
+.intervention-editor form>label { display:block; margin:13px 0; color:#244862; font-size:12px; font-weight:600; }
+.intervention-editor textarea { display:block; box-sizing:border-box; width:100%; margin-top:6px; padding:11px; border:1px solid #c9dce9; border-radius:8px; font:inherit; color:#21425b; resize:vertical; }
+.intervention-editor fieldset { display:flex; flex-wrap:wrap; gap:13px; padding:14px; margin:13px 0; border:1px solid #d5e6ed; border-radius:10px; }.intervention-editor legend { padding:0 5px; color:#1c516a; font-size:12px; }.intervention-editor fieldset label { display:flex; align-items:center; gap:6px; margin:0; font-size:12px; }.intervention-editor fieldset input { width:16px; min-height:16px; height:16px; accent-color:#009b9c; margin:0; }
+.intervention-editor-buttons { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }.intervention-editor .muted { font-size:11px; line-height:1.6; }
+.intervention-history article { border-top:1px solid #deebf2; padding:14px 0; font-size:12px; color:#31556e; }.intervention-history article>div { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }.intervention-history article p { white-space:pre-wrap; overflow-wrap:anywhere; }.intervention-history article small { display:block; margin-bottom:10px; }
+.intervention-report { max-width:960px; margin:auto; color:#21465c; }.intervention-report h2 { font-size:22px; }.intervention-report h3 { font-size:17px; }.intervention-report p { line-height:1.7; white-space:pre-wrap; overflow-wrap:anywhere; }.intervention-report article { padding:10px 0; border-bottom:1px solid #d4e3eb; }.intervention-report .intervention-progress-chart { max-width:450px; height:230px; }
+@media(max-width:1550px) and (min-width:701px) { .intervention-main-grid { grid-template-columns:minmax(0,1fr); }.intervention-bottom-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.intervention-quick { grid-column:1/-1; }.intervention-quick-grid { grid-template-columns:repeat(6,minmax(0,1fr)); }.intervention-filters { flex-wrap:wrap; }.intervention-filters .records-select { flex:1 1 20%; min-width:140px; }.intervention-filters>.button { flex:1; justify-content:center; } }
+@media(max-width:700px) { .intervention-hero>div { max-width:100%; }.intervention-hero .intervention-hero-art { width:135px; height:105px; opacity:.2; right:-10px; }.intervention-filters .records-select { flex:1 1 calc(50% - 10px); min-width:110px; }.intervention-main-grid,.intervention-bottom-grid { grid-template-columns:minmax(0,1fr); gap:17px; }.intervention-main-grid>.card,.intervention-bottom-grid>.card { padding:17px 14px; }.intervention-detail-grid { grid-template-columns:minmax(0,1fr); }.intervention-actions-list { border:0; padding:0; }.intervention-actions-list>div { margin:7px 0; }.intervention-status-body { grid-template-columns:130px minmax(0,1fr); gap:7px; }.intervention-status-body>svg { width:130px; height:130px; }.intervention-legend { grid-template-columns:8px minmax(0,1fr); gap:6px; font-size:10px; }.intervention-legend b { grid-column:2; }.intervention-quick-grid { gap:8px; }.intervention-editor { padding:17px 14px; }.intervention-editor fieldset { flex-direction:column; }.intervention-metrics .record-metric:last-child { grid-column:1/-1; }.intervention-content .records-title h2 { font-size:16px; } }
+@media print { .intervention-content>.page-heading,.intervention-report .no-print { display:none!important; }.intervention-report { max-width:none; border:0; box-shadow:none; padding:0; }.intervention-report article { break-inside:avoid; }.intervention-report .intervention-progress-chart { break-inside:avoid; }.intervention-report p { font-size:11px; } }
+
+.intervention-metrics .record-metric:last-child { border-color:#bae8d2; background:linear-gradient(115deg,#fff,#f0fcf4); }.intervention-metrics .record-metric:last-child .record-metric-icon { color:#0aa34d; background:#ddf8e9; }.intervention-metrics .record-metric:last-child .record-spark { color:#7ce4a7; }

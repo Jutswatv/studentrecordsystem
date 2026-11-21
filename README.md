@@ -178,3 +178,15 @@ Analytics use saved grades only. Incomplete selected records remain unranked and
 Low selected averages or latest selected grades below 75 prompt academic review; missing records appear separately in insights. These are provisional arithmetic summaries, not official grading or transmutation rules. No reference-image sample students or grades are added to user records.
 
 Sources: `browser/analytics.js` and `browser/analytics.css`. Banner artwork and exact generation prompt: `browser/analytics-art.md`. Run `node tests/browser-analytics.cjs` for calculations, filters, ranking, stored-only analytics, account visibility, drill-downs and responsive layouts.
+
+### Academic Interventions dashboard
+
+The browser Academic Interventions page follows the supplied reference, with five live metrics, term/strand/section/status filters, a paginated student list, selected plan details and support actions, status distribution, saved grade progress, and quick actions. The school branding and browser-local storage remain intact. The banner reuses the existing enrollment illustration.
+
+Low-grade indicators use a complete average or latest subject grade below 75. Missing records are shown separately, never treated as zero. Identify At-Risk Students filters the list to low-grade indicators; Reset restores all students. Improved counts students with plans whose latest two adjacent complete period averages increased. Completed means all visible plans for that student were marked complete by staff, not that a grade target was automatically verified.
+
+Select a student to create or update a plan. Plans support action checklists, an optional target average, a follow-up due date, remedial session scheduling, and completion outcomes. Updates append dated history and audit entries; a stale form cannot overwrite a newer entry. Existing intervention notes remain available and their latest status represents the legacy follow-up stream. New plans can be created after existing active plans are completed. Multiple staff plans are summarized as active until all visible plans are completed.
+
+Teachers work with their assigned enrollments and see their own plans; assigned advisers and administrators can manage the visible plans. Students can review their own saved information without editing. Progress charts use saved grades across shared periods, without joining missing periods. Guardian notes are printable drafts for staff review and delivery; the application does not send notifications. Reports use current saved data. Full backups preserve plan metadata and history, while older notes remain compatible.
+
+Sources: `browser/interventions.js` and `browser/interventions.css`. Run `node tests/browser-interventions.cjs` for plan lifecycle, legacy notes, audit history, stale-edit protection, scheduling, filters, pagination, backup metadata, role visibility, report/print and responsive-layout checks.
