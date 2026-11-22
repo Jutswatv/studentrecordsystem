@@ -2,6 +2,7 @@
 window.createAcademicWorkspace = ({h,input,select,STRANDS,LEGACY,makeAdmin,validateStudent,FIELDS}) => {
   const now=()=>new Date().toISOString(), uid=()=>crypto.randomUUID();
   const school=createSchoolStructure({STRANDS});
+  const verification=createVerificationRules({STRANDS});
   function normalize(data) {
     const first=!data.academy;
     const a=data.academy ||= {version:1,enrollments:[],curriculum:[],grades:{},audit:[],requests:[],interventions:[],reports:[],members:[]};
@@ -167,7 +168,8 @@ window.createAcademicWorkspace = ({h,input,select,STRANDS,LEGACY,makeAdmin,valid
       if(!r||typeof r.reference!=='string'||!r.enrollment||!Array.isArray(r.rows)||r.rows.some(x=>!x.subject||!Array.isArray(x.values)))throw Error('Invalid issued report backup.');
       if(r.period!==undefined&&(!Number.isInteger(r.period)||r.period<0||r.period>4||r.period&&!r.rows.some(x=>x.subject.periods>=r.period))||r.template!==undefined&&!['standard','compact','detailed'].includes(r.template))throw Error('Invalid report presentation metadata.');
     }
+    verification.validate(a,students);
     return structuredClone(a);
   }
-  return {staffProfile,school,normalize,member,allowed,visible,rows,view,sectionView,submit,audit,validate,parseCSV};
+  return {verification,staffProfile,school,normalize,member,allowed,visible,rows,view,sectionView,submit,audit,validate,parseCSV};
 };

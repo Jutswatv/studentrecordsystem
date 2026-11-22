@@ -6,6 +6,9 @@ if(!is_dir($out.'/assets')) mkdir($out.'/assets',0777,true);
 copy(__DIR__.'/browser/index.html',$out.'/index.html');
 copy(__DIR__.'/browser/app.js',$out.'/app.js');
 copy(__DIR__.'/browser/academic.js',$out.'/academic.js');
+copy(__DIR__.'/browser/verification-rules.js',$out.'/verification-rules.js');
+copy(__DIR__.'/browser/verification.js',$out.'/verification.js');
+copy(__DIR__.'/public/assets/verification-hero.svg',$out.'/assets/verification-hero.svg');
 copy(__DIR__.'/browser/school-structure.js',$out.'/school-structure.js');
 copy(__DIR__.'/browser/school-years.js',$out.'/school-years.js');
 copy(__DIR__.'/browser/teachers.js',$out.'/teachers.js');
@@ -24,7 +27,7 @@ $logo=__DIR__.'/public/assets/school-logo.png';
 if(!is_file($out.'/assets/school-logo.png') || hash_file('sha256',$logo)!==hash_file('sha256',$out.'/assets/school-logo.png')) {
  if(!copy($logo,$out.'/assets/school-logo.png')) throw new RuntimeException('Unable to publish the school logo.');
 }
-file_put_contents($out.'/style.css',file_get_contents(__DIR__.'/style.css')."\n".file_get_contents(__DIR__.'/theme.css')."\n".file_get_contents(__DIR__.'/browser/browser.css')."\n".file_get_contents(__DIR__.'/browser/dashboard.css')."\n".file_get_contents(__DIR__.'/browser/records.css')."\n".file_get_contents(__DIR__.'/browser/enrollment.css')."\n".file_get_contents(__DIR__.'/browser/curriculum.css')."\n".file_get_contents(__DIR__.'/browser/grades.css')."\n".file_get_contents(__DIR__.'/browser/analytics.css')."\n".file_get_contents(__DIR__.'/browser/interventions.css')."\n".file_get_contents(__DIR__.'/browser/report-cards.css')."\n".file_get_contents(__DIR__.'/browser/school-years.css')."\n".file_get_contents(__DIR__.'/browser/teachers.css'));
+file_put_contents($out.'/style.css',file_get_contents(__DIR__.'/style.css')."\n".file_get_contents(__DIR__.'/theme.css')."\n".file_get_contents(__DIR__.'/browser/browser.css')."\n".file_get_contents(__DIR__.'/browser/dashboard.css')."\n".file_get_contents(__DIR__.'/browser/records.css')."\n".file_get_contents(__DIR__.'/browser/enrollment.css')."\n".file_get_contents(__DIR__.'/browser/curriculum.css')."\n".file_get_contents(__DIR__.'/browser/grades.css')."\n".file_get_contents(__DIR__.'/browser/analytics.css')."\n".file_get_contents(__DIR__.'/browser/interventions.css')."\n".file_get_contents(__DIR__.'/browser/report-cards.css')."\n".file_get_contents(__DIR__.'/browser/school-years.css')."\n".file_get_contents(__DIR__.'/browser/teachers.css')."\n".file_get_contents(__DIR__.'/browser/verification.css'));
 file_put_contents($out.'/.nojekyll','');
 // Keep old demo URLs usable without retaining sample student pages.
 $routes=['about.html'=>'settings','students.html'=>'students','register.html'=>'register','grades.html'=>'grades','reports.html'=>'reports'];
