@@ -14,7 +14,7 @@ $db->exec('CREATE TABLE IF NOT EXISTS admins (id INTEGER PRIMARY KEY, username T
 CREATE TABLE IF NOT EXISTS students (id INTEGER PRIMARY KEY, lrn TEXT UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, middle_name TEXT NOT NULL DEFAULT "", sex TEXT NOT NULL, birth_date TEXT NOT NULL, strand TEXT NOT NULL, section TEXT NOT NULL, school_year TEXT NOT NULL, email TEXT NOT NULL DEFAULT "", phone TEXT NOT NULL DEFAULT "", address TEXT NOT NULL DEFAULT "", guardian TEXT NOT NULL DEFAULT "", guardian_phone TEXT NOT NULL DEFAULT "", created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE IF NOT EXISTS grades (student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE, subject TEXT NOT NULL, q1 REAL, q2 REAL, q3 REAL, q4 REAL, PRIMARY KEY(student_id,subject));
 CREATE TABLE IF NOT EXISTS login_attempts (key TEXT PRIMARY KEY, failures INTEGER NOT NULL, last_attempt INTEGER NOT NULL);');
-$strands = ['STEM','ABM','HUMSS','GAS','TVL'];
+$strands = ['STEM','ABM','HUMSS','TVL'];
 $subjects = ['Contemporary Philippine Arts','Media and Information Literacy','Physical Education and Health','Practical Research 2','English for Academic Purposes','Entrepreneurship','Work Immersion'];
 function h($v): string { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 function query(string $sql, array $args=[]): PDOStatement { global $db; $s=$db->prepare($sql); $s->execute($args); return $s; }

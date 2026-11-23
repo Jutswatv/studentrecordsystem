@@ -3,7 +3,7 @@
   const KEY = 'lnvs.studentrecords.browser.v1';
   const SESSION = KEY + '.session';
   const ACTIVE = KEY + '.active-account';
-  const STRANDS = ['STEM', 'ABM', 'HUMSS', 'GAS', 'TVL'];
+  const STRANDS = ['STEM', 'ABM', 'HUMSS', 'TVL'];
   const SUBJECTS = ['Contemporary Philippine Arts', 'Media and Information Literacy', 'Physical Education and Health', 'Practical Research 2', 'English for Academic Purposes', 'Entrepreneurship', 'Work Immersion'];
   const FIELDS = ['lrn','first_name','last_name','middle_name','sex','birth_date','strand','section','school_year','email','phone','address','guardian','guardian_phone'];
   const app = document.querySelector('#app');
@@ -280,10 +280,10 @@
       app.innerHTML=`<main class="auth"><section class="card"><h1>Storage unavailable</h1><p class="muted">${h(error.message)}</p><p class="local-note">Allow site storage in your browser and use a normal browsing window. Existing data has not been overwritten.</p></section></main>`;
     }
   }
-  function validateStudent(s) {
+  function validateStudent(s, archived=false) {
     if(!/^\d{12}$/.test(s.lrn)) throw new Error('LRN must contain exactly 12 digits.');
     if(!s.first_name || !s.last_name || !s.section) throw new Error('Complete the student name and section.');
-    if(!STRANDS.includes(s.strand) || !['Male','Female'].includes(s.sex)) throw new Error('Select a valid strand and sex.');
+    if(!(STRANDS.includes(s.strand)||archived&&s.strand==='GAS') || !['Male','Female'].includes(s.sex)) throw new Error('Select a valid strand and sex.');
     const date=new Date(s.birth_date+'T00:00:00Z');
     if(!/^\d{4}-\d{2}-\d{2}$/.test(s.birth_date) || !Number.isFinite(date.getTime()) || date.toISOString().slice(0,10)!==s.birth_date || s.birth_date>new Date().toISOString().slice(0,10)) throw new Error('Enter a valid birth date.');
     const years=/^(\d{4})-(\d{4})$/.exec(s.school_year);
@@ -317,7 +317,7 @@
     clean.admin={username:data.admin.username,salt:data.admin.salt,hash:data.admin.hash};
     for(const original of data.students) {
       if(!original||typeof original.id!=='string'||!/^[a-f0-9-]{36}$/.test(original.id)||ids.has(original.id)||lrns.has(original.lrn)) throw new Error('The backup has invalid or duplicate student records.');
-      const s={id:original.id}; for(const key of FIELDS) s[key]=original[key]; validateStudent(s);
+      const s={id:original.id}; for(const key of FIELDS) s[key]=original[key]; validateStudent(s,true);
       s.created_at=typeof original.created_at==='string'?original.created_at:new Date().toISOString();
       ids.add(s.id); lrns.add(s.lrn); clean.students.push(s);
       const rows=data.grades[s.id]||{}; clean.grades[s.id]={};

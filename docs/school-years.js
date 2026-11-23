@@ -1,6 +1,6 @@
 'use strict';
 window.createSchoolYearsPage=({h,icon,input,STRANDS,academic,fullName})=>{
-  const school=academic.school,DEFAULTS={STEM:'Science, Technology, Engineering, and Mathematics',ABM:'Accountancy, Business, and Management',HUMSS:'Humanities and Social Sciences',GAS:'General Academic Strand',TVL:'Technical-Vocational-Livelihood'};
+  const school=academic.school,DEFAULTS={STEM:'Science, Technology, Engineering, and Mathematics',ABM:'Accountancy, Business, and Management',HUMSS:'Humanities and Social Sciences',TVL:'Technical-Vocational-Livelihood'};
   let filters={year:'',strand:'',semester:'1'},tab='years',mode='',editId='',targetId='',assignmentReason='',yearPage=1,sectionPage=1,assignmentPage=1,selection=new Set();
   const admin=u=>u.role==='admin',active=e=>!e.status||e.status==='Enrolled',hidden=(k,v)=>`<input type="hidden" name="${k}" value="${h(v)}">`;
   const token=s=>s.id||'inferred:'+encodeURIComponent(JSON.stringify([s.school_year,s.strand,school.key(s.name)]));
