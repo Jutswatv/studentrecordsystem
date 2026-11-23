@@ -7,6 +7,8 @@ copy(__DIR__.'/browser/index.html',$out.'/index.html');
 copy(__DIR__.'/browser/app.js',$out.'/app.js');
 copy(__DIR__.'/browser/academic.js',$out.'/academic.js');
 copy(__DIR__.'/browser/reports.js',$out.'/reports.js');
+copy(__DIR__.'/public/assets/activity-school.svg',$out.'/assets/activity-school.svg');
+copy(__DIR__.'/public/assets/activity-hero.svg',$out.'/assets/activity-hero.svg');
 copy(__DIR__.'/browser/activity.js',$out.'/activity.js');
 copy(__DIR__.'/browser/verification-rules.js',$out.'/verification-rules.js');
 copy(__DIR__.'/browser/verification.js',$out.'/verification.js');
